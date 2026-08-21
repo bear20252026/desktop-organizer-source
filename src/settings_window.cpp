@@ -24,6 +24,7 @@
 #include "full_data_backup.h"
 #include "http_runtime.h"
 #include "portable_data_migration.h"
+#include "../design_tokens.h"
 
 #include <imgui.h>
 #include <imgui_impl_win32.h>
@@ -585,6 +586,78 @@ static void SetupLightTheme()
     c[ImGuiCol_ResizeGripActive]     = ImVec4(0.55f, 0.55f, 0.60f, 1.00f);
 }
 
+static void SetupDarkTheme()
+{
+    ImGuiStyle& s = ImGui::GetStyle();
+    s.Alpha = 1.0f;
+    // Apple HIG 圆角: md=11px(卡片/面板), sm=8px(控件), xs=5px(小控件)
+    s.FrameRounding = 8.0f;
+    s.WindowRounding = 0.0f;
+    s.ChildRounding = 11.0f;
+    s.ScrollbarSize = 10.0f;
+    s.ScrollbarRounding = 5.0f;
+    s.GrabRounding = 5.0f;
+    s.TabRounding = 8.0f;
+    s.ItemSpacing = ImVec2(8.0f, 8.0f);
+    s.ItemInnerSpacing = ImVec2(8.0f, 8.0f);
+    s.FramePadding = ImVec2(12.0f, 8.0f);
+    s.WindowPadding = ImVec2(16.0f, 16.0f);
+
+    ImVec4* c = s.Colors;
+    // Apple HIG kDarkTheme 背景色: surfaceTile1 (#17171a)
+    c[ImGuiCol_WindowBg]             = ImVec4(0.09f, 0.09f, 0.10f, 1.00f);
+    c[ImGuiCol_ChildBg]              = ImVec4(0.11f, 0.11f, 0.12f, 1.00f);  // canvas #1d1d1f
+    c[ImGuiCol_PopupBg]              = ImVec4(0.11f, 0.11f, 0.12f, 1.00f);
+    c[ImGuiCol_Border]               = ImVec4(0.30f, 0.30f, 0.31f, 1.00f);  // hairline #4d4d50
+    c[ImGuiCol_FrameBg]              = ImVec4(0.16f, 0.16f, 0.17f, 1.00f);  // surfacePearl
+    c[ImGuiCol_FrameBgHovered]       = ImVec4(0.22f, 0.22f, 0.23f, 1.00f);
+    c[ImGuiCol_FrameBgActive]        = ImVec4(0.28f, 0.28f, 0.30f, 1.00f);
+    c[ImGuiCol_TitleBg]              = ImVec4(0.09f, 0.09f, 0.10f, 1.00f);
+    c[ImGuiCol_TitleBgActive]        = ImVec4(0.09f, 0.09f, 0.10f, 1.00f);
+    // Apple HIG kDarkTheme 文本色: ink (#f2f2f2) + muted (#8c8c8c)
+    c[ImGuiCol_Text]                 = ImVec4(0.95f, 0.95f, 0.95f, 1.00f);  // ink #f2f2f2
+    c[ImGuiCol_TextDisabled]         = ImVec4(0.55f, 0.55f, 0.55f, 1.00f);  // ink-muted-48
+    c[ImGuiCol_TextSelectedBg]       = ImVec4(0.16f, 0.60f, 1.00f, 0.25f);  // primary 浅底
+    c[ImGuiCol_InputTextCursor]      = ImVec4(0.16f, 0.60f, 1.00f, 1.00f);  // primary #2997ff
+    c[ImGuiCol_Header]               = ImVec4(0.16f, 0.16f, 0.17f, 1.00f);
+    c[ImGuiCol_HeaderHovered]        = ImVec4(0.22f, 0.22f, 0.23f, 1.00f);
+    c[ImGuiCol_HeaderActive]         = ImVec4(0.28f, 0.28f, 0.30f, 1.00f);
+    // Apple HIG kDarkTheme 按钮色: primary (#2997ff Sky Link Blue)
+    c[ImGuiCol_Button]               = ImVec4(0.16f, 0.60f, 1.00f, 1.00f);  // primary #2997ff
+    c[ImGuiCol_ButtonHovered]        = ImVec4(0.18f, 0.63f, 1.00f, 1.00f);  // primaryFocus
+    c[ImGuiCol_ButtonActive]         = ImVec4(0.12f, 0.52f, 0.90f, 1.00f);  // primary 按下
+    c[ImGuiCol_CheckMark]            = ImVec4(0.16f, 0.60f, 1.00f, 1.00f);
+    c[ImGuiCol_SliderGrab]           = ImVec4(0.16f, 0.60f, 1.00f, 1.00f);
+    c[ImGuiCol_SliderGrabActive]     = ImVec4(0.18f, 0.63f, 1.00f, 1.00f);
+    c[ImGuiCol_Tab]                  = ImVec4(0.16f, 0.16f, 0.17f, 1.00f);
+    c[ImGuiCol_TabHovered]           = ImVec4(0.22f, 0.22f, 0.23f, 1.00f);
+    c[ImGuiCol_TabActive]            = ImVec4(0.11f, 0.11f, 0.12f, 1.00f);  // canvas 暗
+    c[ImGuiCol_TabUnfocused]         = ImVec4(0.14f, 0.14f, 0.15f, 1.00f);
+    c[ImGuiCol_TabUnfocusedActive]   = ImVec4(0.11f, 0.11f, 0.12f, 1.00f);
+    c[ImGuiCol_TableHeaderBg]        = ImVec4(0.14f, 0.14f, 0.15f, 1.00f);
+    c[ImGuiCol_TableBorderStrong]    = ImVec4(0.30f, 0.30f, 0.31f, 1.00f);
+    c[ImGuiCol_TableBorderLight]     = ImVec4(0.22f, 0.22f, 0.23f, 1.00f);  // divider-soft
+    c[ImGuiCol_Separator]            = ImVec4(0.30f, 0.30f, 0.31f, 1.00f);  // hairline
+    c[ImGuiCol_ScrollbarBg]          = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    c[ImGuiCol_ScrollbarGrab]        = ImVec4(0.35f, 0.35f, 0.37f, 1.00f);
+    c[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.45f, 0.45f, 0.47f, 1.00f);
+    c[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.55f, 0.55f, 0.57f, 1.00f);
+    c[ImGuiCol_ResizeGrip]           = ImVec4(0.25f, 0.25f, 0.27f, 1.00f);
+    c[ImGuiCol_ResizeGripHovered]    = ImVec4(0.45f, 0.45f, 0.47f, 1.00f);
+    c[ImGuiCol_ResizeGripActive]     = ImVec4(0.55f, 0.55f, 0.57f, 1.00f);
+}
+
+/** @brief 检测 Windows 系统深色模式并应用对应主题。 */
+static void ApplySystemTheme()
+{
+    using namespace snowdesktop::design_tokens;
+    RefreshThemeState();
+    if (gThemeState.isDarkMode)
+        SetupDarkTheme();
+    else
+        SetupLightTheme();
+}
+
 /**
  * @brief 析构函数，自动调用 Shutdown() 释放资源。
  */
@@ -661,7 +734,7 @@ bool SettingsWindow::Init(HINSTANCE instance, ID3D11Device* device)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    SetupLightTheme();
+    ApplySystemTheme();
 
     ImGui_ImplWin32_Init(hwnd_);
     ImGui_ImplDX11_Init(device_.Get(), context_.Get());
