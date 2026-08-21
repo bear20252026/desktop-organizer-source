@@ -11,8 +11,6 @@
 namespace snowdesktop::dock_magnification
 {
 constexpr float kFocusScale = 1.28f;
-constexpr float kFirstNeighborScale = 1.14f;
-constexpr float kSecondNeighborScale = 1.05f;
 constexpr float kInfluenceRadiusInItems = 3.0f;
 constexpr int kMinimumFocusSwitchHysteresisPixels = 3;
 constexpr int kMaximumFocusSwitchHysteresisPixels = 8;
@@ -56,20 +54,6 @@ inline RECT ExpandFocusRetentionBounds(RECT visualBounds)
     return visualBounds;
 }
 
-inline float SmoothStep(float progress)
-{
-    progress = std::clamp(progress, 0.0f, 1.0f);
-    return progress * progress *
-        (3.0f - 2.0f * progress);
-}
-
-inline float InterpolateScale(
-    float from, float to, float progress)
-{
-    const float eased = SmoothStep(progress);
-    return from + (to - from) * eased;
-}
-
 inline int GrowthForScale(float scale, int baseIconSize)
 {
     return std::max(0, static_cast<int>(std::round(
@@ -83,67 +67,34 @@ inline float ScaleForAxisDistance(
     const float distanceInItems =
         static_cast<float>(std::abs(centerDistance)) /
         static_cast<float>(pitch);
-    if (distanceInItems < 1.0f)
-        return InterpolateScale(
-            kFocusScale, kFirstNeighborScale,
-            distanceInItems);
-    if (distanceInItems < 2.0f)
-        return InterpolateScale(
-            kFirstNeighborScale,
-            kSecondNeighborScale,
-            distanceInItems - 1.0f);
-    if (distanceInItems < kInfluenceRadiusInItems)
-        return InterpolateScale(
-            kSecondNeighborScale, 1.0f,
-            distanceInItems - 2.0f);
-    return 1.0f;
+    if (distanceInItems >= kInfluenceRadiusInItems)
+        return 1.0f;
+    // macOS raised-cosine fisheye: a single continuous curve (instead of the
+    // old three-step discrete profile) that peaks at the pointer and decays
+    // smoothly to rest at the influence radius — the same shape macOS uses.
+    constexpr float kPi = 3.14159265358979f;
+    const float t = distanceInItems / kInfluenceRadiusInItems; // 0..1
+    const float cosine = (1.0f + std::cos(kPi * t)) * 0.5f;    // 1..0
+    return 1.0f + (kFocusScale - 1.0f) * cosine;
 }
 
 inline double IntegratedGrowthInItems(
     double distanceInItems)
 {
+    // Analytic integral of the raised-cosine growth profile used by
+    // ScaleForAxisDistance, so packed icon shifts stay consistent with the
+    // continuous magnification curve (old three-step discrete segments
+    // removed). growth(t) = A/2·(1 + cos(πt)), t = distance/R, A = peak-1.
+    constexpr double kR = static_cast<double>(
+        kInfluenceRadiusInItems);
+    constexpr double kPi = 3.14159265358979;
     const double distance = std::clamp(
-        distanceInItems, 0.0,
-        static_cast<double>(
-            kInfluenceRadiusInItems));
-    constexpr double growth[] = {
-        static_cast<double>(kFocusScale - 1.0f),
-        static_cast<double>(
-            kFirstNeighborScale - 1.0f),
-        static_cast<double>(
-            kSecondNeighborScale - 1.0f),
-        0.0
-    };
-
-    double integral = 0.0;
-    const int wholeSegments =
-        std::min(3, static_cast<int>(
-            std::floor(distance)));
-    for (int segment = 0;
-        segment < wholeSegments; ++segment)
-    {
-        integral +=
-            (growth[segment] +
-                growth[segment + 1]) *
-            0.5;
-    }
-
-    if (wholeSegments < 3 &&
-        distance > wholeSegments)
-    {
-        const double progress =
-            distance - wholeSegments;
-        const double smoothStepIntegral =
-            progress * progress * progress -
-            0.5 * progress * progress *
-                progress * progress;
-        integral += growth[wholeSegments] *
-            progress +
-            (growth[wholeSegments + 1] -
-                growth[wholeSegments]) *
-            smoothStepIntegral;
-    }
-    return integral;
+        distanceInItems, 0.0, kR);
+    const double t = distance / kR; // 0..1
+    const double A = static_cast<double>(kFocusScale - 1.0f);
+    // ∫₀ᵗ A/2·(1+cos(πu))·R du = A/2·R·(t + sin(πt)/π)
+    return A * 0.5 * kR *
+        (t + std::sin(kPi * t) / kPi);
 }
 
 inline int AxisShiftForDistance(
