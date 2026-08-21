@@ -210,6 +210,12 @@ public:
                 PostMessageW(previous, kCancelMessage, TRUE, 0);
             }
             SetForegroundWindow(rootWindow);
+            // Under CI / non-interactive sessions the foreground lock can
+            // reject SetForegroundWindow, which would leave the root menu
+            // unactivated and immediately dismissed via WM_ACTIVATE(WA_INACTIVE).
+            // SetActiveWindow activates a same-thread window without the lock.
+            if (GetForegroundWindow() != rootWindow)
+                SetActiveWindow(rootWindow);
             SetFocus(rootWindow);
         }
 

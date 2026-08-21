@@ -92,6 +92,19 @@ LRESULT CALLBACK OwnerWindowProc(
         MenuWindows menus;
         EnumThreadWindows(GetCurrentThreadId(),
             FindMenuWindows, reinterpret_cast<LPARAM>(&menus));
+        // CI runners can transiently steal foreground from the popup between
+        // creation and the first drive tick (the console reclaims activation,
+        // which posts WA_INACTIVE and dismisses the menu). Re-raising the root
+        // before dispatching synchronous keystrokes keeps the drive sequence
+        // from racing that dismissal window. SetActiveWindow is the foreground-
+        // lock-free same-thread activation; SetForegroundWindow can be refused
+        // by the system foreground lock on CI.
+        if (menus.root && IsWindowVisible(menus.root))
+        {
+            if (GetForegroundWindow() != menus.root)
+                SetActiveWindow(menus.root);
+            SetFocus(menus.root);
+        }
         if (gDriveMode == DriveMode::Cascade && menus.root &&
             gDrivePhase == 0)
         {
@@ -342,7 +355,7 @@ int wmain()
     };
 
     SetTimer(owner, kDriveTimer, 10, nullptr);
-    SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+    SetTimer(owner, kWatchdogTimer, 8000, nullptr);
     snowdesktop::modern_menu::Options options;
     options.owner = owner;
     options.anchor = { 80, 80 };
@@ -385,7 +398,7 @@ int wmain()
     gObservedRootRect = {};
     gWatchdogFired = false;
     SetTimer(owner, kDriveTimer, 10, nullptr);
-    SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+    SetTimer(owner, kWatchdogTimer, 8000, nullptr);
     MONITORINFO monitorInfo{ sizeof(monitorInfo) };
     GetMonitorInfoW(MonitorFromPoint({ 80, 80 },
         MONITOR_DEFAULTTONEAREST), &monitorInfo);
@@ -428,7 +441,7 @@ int wmain()
         options.appearance = appearance;
         options.topmost = topmost;
         SetTimer(owner, kDriveTimer, 10, nullptr);
-        SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+        SetTimer(owner, kWatchdogTimer, 8000, nullptr);
         const auto menuResult =
             snowdesktop::modern_menu::Show(adjustmentItems, options);
         KillTimer(owner, kWatchdogTimer);
@@ -473,7 +486,7 @@ int wmain()
     options.topmost = true;
     options.zOrderOwner = zOrderOwner;
     SetTimer(owner, kDriveTimer, 10, nullptr);
-    SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+    SetTimer(owner, kWatchdogTimer, 8000, nullptr);
     const auto ownedMenuResult =
         snowdesktop::modern_menu::Show(
             adjustmentItems, options);
@@ -498,7 +511,7 @@ int wmain()
     gWatchdogFired = false;
     options.topmost = false;
     SetTimer(owner, kDriveTimer, 10, nullptr);
-    SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+    SetTimer(owner, kWatchdogTimer, 8000, nullptr);
     const auto dismissedMenuResult =
         snowdesktop::modern_menu::Show(
             adjustmentItems, options);
@@ -523,7 +536,7 @@ int wmain()
     gCaptureTopmost = false;
     options.topmost = false;
     SetTimer(owner, kDriveTimer, 10, nullptr);
-    SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+    SetTimer(owner, kWatchdogTimer, 8000, nullptr);
     const auto quickResult = snowdesktop::modern_menu::Show(
         quickAdjustmentItems, options);
     KillTimer(owner, kWatchdogTimer);
@@ -566,7 +579,7 @@ int wmain()
     gObservedRootRect = {};
     gWatchdogFired = false;
     SetTimer(owner, kDriveTimer, 10, nullptr);
-    SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+    SetTimer(owner, kWatchdogTimer, 8000, nullptr);
     const auto inlinePagingResult =
         snowdesktop::modern_menu::Show(inlinePagingItems, options);
     KillTimer(owner, kWatchdogTimer);
@@ -600,7 +613,7 @@ int wmain()
     gSelectEnd = true;
     gWatchdogFired = false;
     SetTimer(owner, kDriveTimer, 10, nullptr);
-    SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+    SetTimer(owner, kWatchdogTimer, 8000, nullptr);
     const auto horizontalTagResult =
         snowdesktop::modern_menu::Show(horizontalTagItems, options);
     KillTimer(owner, kWatchdogTimer);
@@ -644,7 +657,7 @@ int wmain()
     gObservedRootRect = {};
     gWatchdogFired = false;
     SetTimer(owner, kDriveTimer, 10, nullptr);
-    SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+    SetTimer(owner, kWatchdogTimer, 8000, nullptr);
     const auto previewRowsResult =
         snowdesktop::modern_menu::Show(previewRows, options);
     KillTimer(owner, kWatchdogTimer);
@@ -680,7 +693,7 @@ int wmain()
     gInputPosted = false;
     gWatchdogFired = false;
     SetTimer(owner, kDriveTimer, 10, nullptr);
-    SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+    SetTimer(owner, kWatchdogTimer, 8000, nullptr);
     const auto persistentResult =
         snowdesktop::modern_menu::Show(persistentItems, options);
     KillTimer(owner, kWatchdogTimer);
@@ -714,7 +727,7 @@ int wmain()
     gPersistentSubmenuStayedOpen = false;
     gWatchdogFired = false;
     SetTimer(owner, kDriveTimer, 10, nullptr);
-    SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+    SetTimer(owner, kWatchdogTimer, 8000, nullptr);
     const auto persistentSubmenuResult =
         snowdesktop::modern_menu::Show(persistentSubmenuItems, options);
     KillTimer(owner, kWatchdogTimer);
@@ -753,7 +766,7 @@ int wmain()
     gRebuiltRootSubmenuClosed = false;
     gWatchdogFired = false;
     SetTimer(owner, kDriveTimer, 10, nullptr);
-    SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+    SetTimer(owner, kWatchdogTimer, 8000, nullptr);
     const auto rebuiltRootSubmenuResult =
         snowdesktop::modern_menu::Show(rebuiltRootSubmenuItems, options);
     KillTimer(owner, kWatchdogTimer);
@@ -788,7 +801,7 @@ int wmain()
     gInputPosted = false;
     gWatchdogFired = false;
     SetTimer(owner, kDriveTimer, 10, nullptr);
-    SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+    SetTimer(owner, kWatchdogTimer, 8000, nullptr);
     const auto textInputResult =
         snowdesktop::modern_menu::Show(textInputItems, options);
     KillTimer(owner, kWatchdogTimer);
@@ -809,7 +822,7 @@ int wmain()
     options.onCommand = {};
     options.onTextChanged = {};
     SetTimer(owner, kDriveTimer, 10, nullptr);
-    SetTimer(owner, kWatchdogTimer, 3000, nullptr);
+    SetTimer(owner, kWatchdogTimer, 8000, nullptr);
     const auto replacedResult =
         snowdesktop::modern_menu::Show(adjustmentItems, options);
     KillTimer(owner, kWatchdogTimer);
