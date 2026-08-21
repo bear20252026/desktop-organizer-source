@@ -629,6 +629,17 @@ private:
         D2D1_COLOR_F fill, D2D1_COLOR_F border, bool selected, float strokeWidth,
         const PersonalizationSettings* effectSettings = nullptr,
         bool registerBackdrop = true);
+    /**
+     * @brief 毛玻璃效果管道入口（app_backdrop_effect.cpp）。
+     *
+     * 将玻璃面板绘制拆分为五个顺序节点，单向流动，禁止在节点间反向访问：
+     *   Capture → Blur → Tint → Noise → Compose
+     * DrawWidgetPanelBackground 是其薄封装，行为保持一致。
+     */
+    void DrawBackdropEffectPanel(ID2D1DeviceContext* ctx, RECT frame, float radius,
+        D2D1_COLOR_F fill, D2D1_COLOR_F border, bool selected, float strokeWidth,
+        const PersonalizationSettings* effectSettings = nullptr,
+        bool registerBackdrop = true);
     /** @brief 在圆角区域内绘制稳定平铺的低透明亚克力颗粒。 */
     void DrawAcrylicNoise(ID2D1DeviceContext* ctx, RECT frame, float radius,
         bool lightTheme, POINT screenOrigin);

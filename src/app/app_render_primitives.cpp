@@ -49,79 +49,11 @@ void DesktopApp::DrawWidgetPanelBackground(ID2D1DeviceContext* ctx, RECT frame, 
     D2D1_COLOR_F fill, D2D1_COLOR_F border, bool selected, float strokeWidth,
     const PersonalizationSettings* effectSettings, bool registerBackdrop)
 {
-    if (!ctx || IsRectEmptyRect(frame)) return;
-    if (ctx != brushCacheContext_ || brushCache_.size() >= 512)
-    {
-        brushCache_.clear();
-        brushCacheContext_ = ctx;
-    }
-
-    PersonalizationSettings p = effectSettings
-        ? *effectSettings
-        : (settingsWindow_
-            ? settingsWindow_->GetPersonalization()
-            : PersonalizationSettings::DarkPreset());
-    radius = std::max(0.0f, radius);
-
-    auto getBrush = [&](const D2D1_COLOR_F& c) -> ID2D1SolidColorBrush* {
-        const auto key = D2DColorBrushKey(c);
-        auto it = brushCache_.find(key);
-        if (it == brushCache_.end())
-        {
-            ComPtr<ID2D1SolidColorBrush> b;
-            if (FAILED(ctx->CreateSolidColorBrush(c, &b)) || !b) return nullptr;
-            it = brushCache_.emplace(key, std::move(b)).first;
-        }
-        return it->second.Get();
-    };
-
-    D2D1_ROUNDED_RECT rr = D2D1::RoundedRect(ToD2DRect(frame), radius, radius);
-
-    // 原生毛玻璃由下层 CompositionBackdropBrush 提供，本层只绘制色调和装饰。
-    if (p.glassEnabled && registerBackdrop)
-    {
-        if (renderingFloatingDock_)
-            floatingDockBackdropCompositor_.AddPanel(
-                snowdesktop::floating_dock_rules::
-                    DesktopRectToWindowRect(
-                        frame, floatingDockSourceRect_),
-                radius, p.glassBlurRadius);
-        else
-            desktopBackdropCompositor_.AddPanel(
-                frame, radius, p.glassBlurRadius);
-    }
-
-    if (fill.a > 0.0f)
-    {
-        if (auto* fillBrush = getBrush(fill))
-            ctx->FillRoundedRectangle(rr, fillBrush);
-    }
-    if (p.glassEnabled && p.acrylicEnabled)
-    {
-        POINT screenOrigin{};
-        // Both render paths use desktop-client coordinates. Anchor the acrylic
-        // texture to that common coordinate space so the Dock does not appear
-        // to change border/noise treatment when moved to the floating host.
-        HWND renderWindow = hwnd_;
-        if (renderWindow)
-            ClientToScreen(renderWindow, &screenOrigin);
-        DrawAcrylicNoise(ctx, frame, radius, p.contentTheme == 1,
-            screenOrigin);
-    }
-
-    D2D1_COLOR_F stroke = selected
-        ? D2D1::ColorF(0.39f, 0.66f, 1.0f, 0.90f)
-        : border;
-    if (stroke.a > 0.0f)
-    {
-        const bool glassDrawn = p.glassEnabled && !selected &&
-            DrawGlassBorder(ctx, frame, radius, stroke, strokeWidth);
-        if (!glassDrawn)
-        {
-            if (auto* strokeBrush = getBrush(stroke))
-                ctx->DrawRoundedRectangle(rr, strokeBrush, strokeWidth, nullptr);
-        }
-    }
+    // Thin wrapper: the glass/acrylic/border work lives in the L4 backdrop
+    // effect pipeline (app_backdrop_effect.cpp) so the effect stays one
+    // independently testable stage instead of being inlined here.
+    DrawBackdropEffectPanel(ctx, frame, radius, fill, border, selected,
+        strokeWidth, effectSettings, registerBackdrop);
 }
 
 void DesktopApp::DrawAcrylicNoise(ID2D1DeviceContext* ctx, RECT frame,

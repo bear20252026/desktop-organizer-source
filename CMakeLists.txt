@@ -87,6 +87,7 @@ message(STATUS "SnowDesktop version: ${SNOWDESKTOP_VERSION}")
 set(SNOWDESKTOP_SOURCES
     src/main.cpp
     src/app/app_bitmap_cache.cpp
+    src/app/app_backdrop_effect.cpp
     src/app/app_background_menu.cpp
     src/app/app_animation_scheduler.cpp
     src/app/app_clipboard_interaction.cpp
