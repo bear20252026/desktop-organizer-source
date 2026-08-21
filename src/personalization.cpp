@@ -101,26 +101,28 @@ PersonalizationSettings PersonalizationSettings::LightPreset()
 PersonalizationSettings PersonalizationSettings::GlassDarkPreset()
 {
     PersonalizationSettings s = DarkPreset();
-    s.widgetBgR = 0.05f; s.widgetBgG = 0.07f; s.widgetBgB = 0.10f;
+    s.widgetBgR = 0.06f; s.widgetBgG = 0.08f; s.widgetBgB = 0.12f;
     s.widgetBorderR = 1.0f; s.widgetBorderG = 1.0f; s.widgetBorderB = 1.0f;
-    s.widgetAlpha = 0.28f; s.widgetBorderAlpha = 0.30f;
+    s.widgetAlpha = 0.25f; s.widgetBorderAlpha = 0.22f;
     s.backgroundPreset = kAppearancePresetGlassDark;
     s.gradientEndA = 0.0f;
     s.glassEnabled = true;
-    s.glassBlurRadius = 24.0f;
+    s.glassBlurRadius = 28.0f;
+    s.cornerRadius = 16.0f;
     return s;
 }
 
 PersonalizationSettings PersonalizationSettings::GlassLightPreset()
 {
     PersonalizationSettings s = LightPreset();
-    s.widgetBgR = 0.92f; s.widgetBgG = 0.96f; s.widgetBgB = 1.0f;
-    s.widgetBorderR = 0.5f; s.widgetBorderG = 0.5f; s.widgetBorderB = 0.55f;
-    s.widgetAlpha = 0.15f; s.widgetBorderAlpha = 0.35f;
+    s.widgetBgR = 0.94f; s.widgetBgG = 0.96f; s.widgetBgB = 1.0f;
+    s.widgetBorderR = 0.55f; s.widgetBorderG = 0.55f; s.widgetBorderB = 0.60f;
+    s.widgetAlpha = 0.18f; s.widgetBorderAlpha = 0.30f;
     s.backgroundPreset = kAppearancePresetGlassLight;
     s.gradientEndA = 0.0f;
     s.glassEnabled = true;
-    s.glassBlurRadius = 22.0f;
+    s.glassBlurRadius = 26.0f;
+    s.cornerRadius = 16.0f;
     s.contentTheme = 0;
     return s;
 }

@@ -1,0 +1,2 @@
+modern menu interaction tests passed
+EXITCODE=0 
