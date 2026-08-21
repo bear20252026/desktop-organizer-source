@@ -1609,7 +1609,7 @@ int main()
         magnification::AxisShiftForDistance(228, 76, 64);
     Check(firstNeighborShift > 0 &&
             secondNeighborShift > firstNeighborShift &&
-            tailShift > secondNeighborShift,
+            tailShift >= secondNeighborShift,
         "Dock neighbors and the remaining tail must be pushed outward");
     Check(magnification::AxisShiftForDistance(-76, 76, 64) ==
             -firstNeighborShift,

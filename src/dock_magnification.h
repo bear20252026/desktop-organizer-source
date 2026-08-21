@@ -87,8 +87,9 @@ inline double IntegratedGrowthInItems(
     // ScaleForAxisDistance, so packed icon shifts stay consistent with the
     // cos⁸ magnification curve. growth(d) = A·cos⁸(πd/(2R)).
     //
-    // ∫₀ᵗ Acos⁸(πu/2)Rdu = A·R/(128π)·[35πt + 84sin(πt)
-    //   + 28sin(2πt) + (28/3)sin(3πt) + 2sin(4πt)]
+    // cos⁸(x) = (35 + 56cos2x + 28cos4x + 8cos6x + cos8x) / 128
+    // ∫₀ᵗ Acos⁸(πu/2)·Rdu = A·R/(128π)·[35πt + 56sin(πt)
+    //   + 14sin(2πt) + (8/3)sin(3πt) + (1/4)sin(4πt)]
     // where t = distance/R.
     constexpr double kR = static_cast<double>(
         kInfluenceRadiusInItems);
@@ -100,10 +101,10 @@ inline double IntegratedGrowthInItems(
     const double pt = kPi * t;
     return A * kR / (128.0 * kPi) *
         (35.0 * pt
-         + 84.0 * std::sin(pt)
-         + 28.0 * std::sin(2.0 * pt)
-         + (28.0 / 3.0) * std::sin(3.0 * pt)
-         + 2.0 * std::sin(4.0 * pt));
+         + 56.0 * std::sin(pt)
+         + 14.0 * std::sin(2.0 * pt)
+         + (8.0 / 3.0) * std::sin(3.0 * pt)
+         + 0.25 * std::sin(4.0 * pt));
 }
 
 inline int AxisShiftForDistance(
