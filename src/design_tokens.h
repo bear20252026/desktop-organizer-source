@@ -79,6 +79,29 @@ inline const ColorTokens kLightTheme = {
     /* statusWarning */  {0.96f, 0.39f, 0.0f, 1.0f},   // #f56300
 };
 
+inline const ColorTokens kDarkTheme = {
+    /* primary */        {0.16f, 0.60f, 1.0f, 1.0f},   // #2997ff Sky Link Blue
+    /* primaryFocus */   {0.18f, 0.63f, 1.0f, 1.0f},   // 稍亮
+    /* primaryOnDark */  {0.16f, 0.60f, 1.0f, 1.0f},   // #2997ff
+    /* canvas */         {0.11f, 0.11f, 0.12f, 1.0f},   // #1d1d1f 近黑
+    /* canvasParchment */{0.15f, 0.15f, 0.16f, 1.0f},   // #272729
+    /* surfacePearl */   {0.16f, 0.16f, 0.17f, 1.0f},   // #2a2a2c
+    /* surfaceTile1 */   {0.09f, 0.09f, 0.10f, 1.0f},   // #17171a
+    /* surfaceTile2 */   {0.11f, 0.11f, 0.12f, 1.0f},   // #1c1c1e
+    /* surfaceTile3 */   {0.07f, 0.07f, 0.08f, 1.0f},   // #121213
+    /* surfaceBlack */   {0.0f, 0.0f, 0.0f, 1.0f},      // #000000
+    /* ink */            {0.95f, 0.95f, 0.95f, 1.0f},   // #f2f2f2 浅灰白
+    /* bodyOnDark */     {0.95f, 0.95f, 0.95f, 1.0f},   // #f2f2f2
+    /* bodyMuted */      {0.55f, 0.55f, 0.55f, 1.0f},   // #8c8c8c
+    /* inkMuted80 */     {0.80f, 0.80f, 0.80f, 1.0f},   // #cccccc
+    /* inkMuted48 */     {0.48f, 0.48f, 0.48f, 1.0f},   // #7a7a7a
+    /* dividerSoft */    {0.22f, 0.22f, 0.23f, 1.0f},   // #38383a
+    /* hairline */       {0.30f, 0.30f, 0.31f, 1.0f},   // #4d4d50
+    /* statusSuccess */  {0.18f, 0.84f, 0.29f, 1.0f},   // 绿色（暗色主题更亮）
+    /* statusError */    {1.0f, 0.27f, 0.27f, 1.0f},    // 红色（暗色主题更亮）
+    /* statusWarning */  {1.0f, 0.58f, 0.0f, 1.0f},     // 橙色（暗色主题更亮）
+};
+
 // ── 间距令牌（Spacing Tokens）────────────────────────────────
 // 苹果设计系统 8px 基数间距
 
@@ -251,11 +274,45 @@ inline AccessibilityTokens gAccessibility = {
     false, false, false
 };
 
+struct ThemeState
+{
+    bool isDarkMode = false;
+    bool initialized = false;
+};
+
+inline ThemeState gThemeState;
+
+/** @brief 检测 Windows 系统是否处于深色模式。 */
+inline bool IsSystemDarkMode()
+{
+    HKEY hKey{};
+    DWORD appsUseLightTheme = 1; // 默认浅色
+    if (RegOpenKeyExW(HKEY_CURRENT_USER,
+            L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+            0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    {
+        DWORD size = sizeof(appsUseLightTheme);
+        RegQueryValueExW(hKey, L"AppsUseLightTheme", nullptr,
+            nullptr, reinterpret_cast<LPBYTE>(&appsUseLightTheme), &size);
+        RegCloseKey(hKey);
+    }
+    return appsUseLightTheme == 0;
+}
+
+/** @brief 刷新系统主题状态（深色/浅色）。 */
+inline void RefreshThemeState()
+{
+    gThemeState.isDarkMode = IsSystemDarkMode();
+    gThemeState.initialized = true;
+}
+
 // ── 便捷访问函数 ──────────────────────────────────────────────
 
 inline const ColorTokens& GetColorTokens()
 {
-    return kLightTheme;
+    if (!gThemeState.initialized)
+        RefreshThemeState();
+    return gThemeState.isDarkMode ? kDarkTheme : kLightTheme;
 }
 
 inline const SpacingTokens& GetSpacing()
@@ -286,6 +343,80 @@ inline const GlassTokens& GetGlass()
 inline const TypographyTokens& GetTypography()
 {
     return kTypography;
+}
+
+// ── Dynamic Type（动态排版）────────────────────────────────────
+// Apple HIG：系统字号变化时，所有组件自动调整排版。
+// Windows 对应：系统 DPI 缩放 + 非客户端区字号。
+// 本机制读取系统字号缩放因子，返回按比例调整后的排版令牌。
+
+struct DynamicTypeState
+{
+    float scaleFactor = 1.0f;  // 系统字号缩放（1.0 = 标准）
+    bool initialized = false;
+};
+
+inline DynamicTypeState gDynamicType;
+
+/** @brief 读取系统字号缩放因子（Windows 系统 DPI / 字号设置）。 */
+inline float GetSystemFontScaleFactor()
+{
+    // 方法1: 读取注册表 HKCU\Software\Microsoft\Accessibility\TextScaleFactor
+    HKEY hKey{};
+    DWORD textScale = 100; // 默认 100%
+    if (RegOpenKeyExW(HKEY_CURRENT_USER,
+            L"Software\\Microsoft\\Accessibility",
+            0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    {
+        DWORD size = sizeof(textScale);
+        RegQueryValueExW(hKey, L"TextScaleFactor", nullptr,
+            nullptr, reinterpret_cast<LPBYTE>(&textScale), &size);
+        RegCloseKey(hKey);
+    }
+    // Windows 11: TextScaleFactor 范围 100-200（百分比）
+    return static_cast<float>(textScale) / 100.0f;
+}
+
+/** @brief 刷新 Dynamic Type 状态（在应用启动时和系统设置变化时调用）。 */
+inline void RefreshDynamicType()
+{
+    gDynamicType.scaleFactor = GetSystemFontScaleFactor();
+    gDynamicType.initialized = true;
+}
+
+/** @brief 获取缩放后的字号（考虑 Dynamic Type）。 */
+inline float GetScaledFontSize(float baseFontSize)
+{
+    if (!gDynamicType.initialized)
+        RefreshDynamicType();
+    return baseFontSize * gDynamicType.scaleFactor;
+}
+
+/** @brief 获取缩放后的排版令牌（整套）。 */
+inline TypographyToken ScaleTypography(const TypographyToken& base)
+{
+    if (!gDynamicType.initialized)
+        RefreshDynamicType();
+    TypographyToken scaled = base;
+    scaled.fontSize = base.fontSize * gDynamicType.scaleFactor;
+    // 行高倍数不变（是相对值），字间距按字号等比缩放
+    scaled.letterSpacing = base.letterSpacing * gDynamicType.scaleFactor;
+    return scaled;
+}
+
+/** @brief 圆角胶囊形状（Capsule）：半高圆角，用于按钮/标签等高密度 UI。
+ *  Apple HIG 规则：胶囊圆角 = 元素高度 / 2。
+ *  适用于按钮、标签、芯片等需要完全圆角的元素。 */
+inline float GetCapsuleRadius(float elementHeight)
+{
+    return elementHeight * 0.5f;
+}
+
+/** @brief 同心圆角（Concentric）：内层元素圆角 = 外层圆角 - 内边距。
+ *  Apple HIG 规则：内层圆角必须比外层小，保证圆角曲线自然衔接。 */
+inline float GetConcentricRadius(float parentRadius, float padding)
+{
+    return std::max(0.0f, parentRadius - padding);
 }
 
 /** @brief 根据元素角色获取推荐的玻璃模糊半径。 */

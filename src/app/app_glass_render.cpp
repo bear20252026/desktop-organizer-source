@@ -1,4 +1,5 @@
 #include "app.h"
+#include "../design_tokens.h"
 
 // Native glass border rendering and diagnostics.
 
@@ -8,16 +9,25 @@ bool DesktopApp::DrawGlassBorder(ID2D1DeviceContext* ctx, RECT frame,
     if (!ctx || color.a <= 0.0f || IsRectEmptyRect(frame))
         return false;
 
+    using namespace snowdesktop::design_tokens;
+    const auto& glass = GetGlass();
+
+    // Apple HIG: 单一光源模型 — 左上 35° 角光源
+    // Upper-left 受光面（bright）使用光强值，Lower-right 背光面（dark）使用低值
+    // 三档亮度：low=图标, medium=按钮/菜单, high=活跃/聚焦
+    const float brightIntensity = glass.lightIntensityMedium;  // 0.15
+    const float darkIntensity = brightIntensity * 0.55f;       // 背光面约 55% 亮度
+
     auto mixWhite = [](float value, float amount) {
         return std::clamp(value + (1.0f - value) * amount, 0.0f, 1.0f);
     };
     const D2D1_COLOR_F bright = D2D1::ColorF(
-        mixWhite(color.r, 0.58f), mixWhite(color.g, 0.58f),
-        mixWhite(color.b, 0.58f),
+        mixWhite(color.r, brightIntensity), mixWhite(color.g, brightIntensity),
+        mixWhite(color.b, brightIntensity),
         std::clamp(color.a * 0.91f, 0.0f, 1.0f));
     const D2D1_COLOR_F lowerRight = D2D1::ColorF(
-        mixWhite(color.r, 0.18f), mixWhite(color.g, 0.18f),
-        mixWhite(color.b, 0.18f),
+        mixWhite(color.r, darkIntensity), mixWhite(color.g, darkIntensity),
+        mixWhite(color.b, darkIntensity),
         std::clamp(color.a * 0.82f, 0.0f, 1.0f));
     const D2D1_GRADIENT_STOP upperLeftStops[] = {
         { 0.0f, bright },

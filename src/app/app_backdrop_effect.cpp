@@ -176,6 +176,54 @@ void DesktopApp::DrawBackdropEffectPanel(
         }
     }
 
+    // [4.6] Liquid Glass — 边缘折射（Clear 模式光学效果）
+    //        模拟光线穿过弯曲玻璃时在边缘产生的折射：边缘亮、中心暗。
+    //        使用径向渐变从面板中心向四周扩散，边缘 15% 宽度内产生折射高光。
+    if (p.glassEnabled)
+    {
+        using namespace snowdesktop::design_tokens;
+        const auto& glass = GetGlass();
+        const float w = static_cast<float>(frame.right - frame.left);
+        const float h = static_cast<float>(frame.bottom - frame.top);
+        if (w > 8.0f && h > 8.0f)
+        {
+            const D2D1_POINT_2F center = D2D1::Point2F(
+                frame.left + w * 0.5f, frame.top + h * 0.5f);
+            const float outerRadius = std::max(w, h) * 0.55f;
+            const float edgeIntensity = glass.lightIntensityMedium * 0.6f;  // 折射强度低于主光源
+            const D2D1_GRADIENT_STOP refractionStops[] = {
+                { 0.0f, D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.0f) },           // 中心：无折射
+                { 0.75f, D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.0f) },           // 75% 半径：无折射
+                { 0.85f, D2D1::ColorF(1.0f, 1.0f, 1.0f, edgeIntensity) },  // 85% 半径：折射开始
+                { 0.95f, D2D1::ColorF(1.0f, 1.0f, 1.0f, edgeIntensity * 0.7f) }, // 95%：折射衰减
+                { 1.0f, D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.0f) },            // 边缘：无
+            };
+            ComPtr<ID2D1GradientStopCollection> refractionCollection;
+            if (SUCCEEDED(ctx->CreateGradientStopCollection(
+                    refractionStops,
+                    static_cast<UINT32>(std::size(refractionStops)),
+                    D2D1_GAMMA_2_2,
+                    D2D1_EXTEND_MODE_CLAMP,
+                    &refractionCollection)) &&
+                refractionCollection)
+            {
+                ComPtr<ID2D1RadialGradientBrush> refractionBrush;
+                if (SUCCEEDED(ctx->CreateRadialGradientBrush(
+                        D2D1::RadialGradientBrushProperties(
+                            center,
+                            D2D1::Point2F(0.0f, 0.0f),
+                            outerRadius, outerRadius),
+                        D2D1::BrushProperties(),
+                        refractionCollection.Get(),
+                        &refractionBrush)) &&
+                    refractionBrush)
+                {
+                    ctx->FillRoundedRectangle(rr, refractionBrush.Get());
+                }
+            }
+        }
+    }
+
     // [5] Compose — 描边合成（选中项用强调色；玻璃边缘优先，退化到普通描边）。
     D2D1_COLOR_F stroke = selected
         ? D2D1::ColorF(0.39f, 0.66f, 1.0f, 0.90f)
