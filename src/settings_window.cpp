@@ -26,6 +26,8 @@
 #include "portable_data_migration.h"
 #include "../design_tokens.h"
 
+#include <dwmapi.h>
+
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
@@ -730,6 +732,12 @@ bool SettingsWindow::Init(HINSTANCE instance, ID3D11Device* device)
         SendMessageW(hwnd_, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(wc.hIcon));
     if (wc.hIconSm)
         SendMessageW(hwnd_, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(wc.hIconSm));
+
+    // Apple HIG Liquid Glass 材质：设置窗口启用 Windows 11 原生 Mica + 暗色标题栏
+    const BOOL darkMode = TRUE;
+    DwmSetWindowAttribute(hwnd_, 20 /* DWMWA_USE_IMMERSIVE_DARK_MODE */, &darkMode, sizeof(darkMode));
+    const int backdropType = 2; // DWMSBT_MAINWINDOW (Mica)
+    DwmSetWindowAttribute(hwnd_, 38 /* DWMWA_SYSTEMBACKDROP_TYPE */, &backdropType, sizeof(backdropType));
 
     if (!CreateSwapChain()) return false;
 

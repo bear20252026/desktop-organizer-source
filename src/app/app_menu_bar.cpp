@@ -64,6 +64,14 @@ bool DesktopApp::CreateMenuBarWindow()
         20 /* DWMWA_USE_IMMERSIVE_DARK_MODE */,
         &darkMode, sizeof(darkMode));
 
+    // Liquid Glass 材质：启用 Windows 11 原生 Mica 效果
+    // （DWMSBT_MAINWINDOW = 2，DWMWA_SYSTEMBACKDROP_TYPE = 38）
+    // 使菜单栏获得真正的壁纸采样模糊效果，模拟 macOS 菜单栏毛玻璃质感。
+    const int backdropType = 2; // DWMSBT_MAINWINDOW (Mica)
+    DwmSetWindowAttribute(menuBarHwnd_,
+        38 /* DWMWA_SYSTEMBACKDROP_TYPE */,
+        &backdropType, sizeof(backdropType));
+
     SetTimer(menuBarHwnd_, kMenuBarClockTimerId,
         kMenuBarUpdateIntervalMs, nullptr);
 
@@ -167,11 +175,26 @@ void DesktopApp::PaintMenuBarWindow(HWND hwnd)
             rightLen += wsprintfW(rightBuf + rightLen, L" WiFi");
         }
     }
-    // 音量（通过 Core Audio API 获取主端点音量）
-    // 简化：使用 GetMasterVolumeLevelScalar 需要 COM 初始化，
-    // 菜单栏作为轻量 GDI 窗口，先用占位符，后续扩展。
+    // 音量（通过 registry 读取 Windows 音量百分比，无额外头文件依赖）
     {
-        rightLen += wsprintfW(rightBuf + rightLen, L" 🔊");
+        HKEY hKey{};
+        if (RegOpenKeyExW(HKEY_CURRENT_USER,
+                L"Software\\Microsoft\\Internet Explorer\\LowRegistry\\Volume",
+                0, KEY_READ, &hKey) == ERROR_SUCCESS)
+        {
+            DWORD vol = 0, size = sizeof(vol);
+            if (RegQueryValueExW(hKey, L"Volume", nullptr, nullptr,
+                    reinterpret_cast<LPBYTE>(&vol), &size) == ERROR_SUCCESS)
+            {
+                int pct = static_cast<int>((vol * 100ULL) / 65535);
+                rightLen += wsprintfW(rightBuf + rightLen, L" 🔊 %d%%", pct);
+            }
+            RegCloseKey(hKey);
+        }
+        else
+        {
+            rightLen += wsprintfW(rightBuf + rightLen, L" 🔊");
+        }
     }
     if (rightLen > 0)
     {
