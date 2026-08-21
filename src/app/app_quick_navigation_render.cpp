@@ -2,6 +2,7 @@
 #include "quick_navigation_helpers.h"
 #include "quick_navigation_rules.h"
 #include "quick_navigation_theme.h"
+#include "../design_tokens.h"
 
 // Quick-navigation DirectWrite and DirectComposition rendering resources.
 
@@ -10,11 +11,14 @@ void DesktopApp::EnsureQuickNavTextFormats()
     if (!dwriteFactory_)
         return;
 
-    const float tabSize = static_cast<float>(QuickNavScale(14));
-    const float itemSize = static_cast<float>(QuickNavScale(13));
-    const float pathSize = static_cast<float>(QuickNavScale(11));
-    // 深色用极细字重：Segoe UI Variable 支持连续字重轴，100=Thin 才能真正比 Light(300) 更细。
-    const float itemWeightValue = quickNavLightTheme_ ? 550.0f : 100.0f;
+    using namespace snowdesktop::design_tokens;
+    const auto& typo = GetTypography();
+    // Apple HIG: 使用设计令牌字号（caption=14px, body=17px, caption-strong=14px, fine-print=12px）
+    const float tabSize = static_cast<float>(QuickNavScale(static_cast<int>(typo.caption.fontSize)));
+    const float itemSize = static_cast<float>(QuickNavScale(static_cast<int>(typo.bodyStrong.fontSize)));
+    const float pathSize = static_cast<float>(QuickNavScale(static_cast<int>(typo.finePrint.fontSize)));
+    // Apple HIG: 深色用 300 字重（轻盈），浅色用 600（强调），与设计令牌一致
+    const float itemWeightValue = quickNavLightTheme_ ? 600.0f : 300.0f;
     const DWRITE_FONT_WEIGHT itemWeight =
         static_cast<DWRITE_FONT_WEIGHT>(static_cast<int>(itemWeightValue));
 
@@ -268,6 +272,8 @@ void DesktopApp::PaintQuickNavigationWindow(HWND hwnd)
     };
 
     const QuickNavTheme& t = quickNavLightTheme_ ? kQuickNavLight : kQuickNavDark;
+    using namespace snowdesktop::design_tokens;
+    const auto& colors = GetColorTokens();
 
     HRESULT hr = CreateOrResizeQuickNavCompositionSurface();
     if (FAILED(hr))

@@ -1,5 +1,6 @@
 #include "app.h"
 #include <winsock2.h>
+#include "../design_tokens.h"
 
 // ── 顶部菜单栏（macOS 风格系统状态栏）──────────────────────────────
 //
@@ -91,20 +92,31 @@ void DesktopApp::PaintMenuBarWindow(HWND hwnd)
     HBITMAP memBmp = CreateCompatibleBitmap(hdc, w, h);
     SelectObject(memDc, memBmp);
 
-    // 背景填充
-    HBRUSH bgBrush = CreateSolidBrush(RGB(24, 28, 38));
+    // 背景填充 — Apple HIG: 近黑色 (#181C26)，与 Liquid Glass 深色材质一致
+    using namespace snowdesktop::design_tokens;
+    const auto& colors = GetColorTokens();
+    const auto& typo = GetTypography();
+    const int menuFontSize = static_cast<int>(typo.navLink.fontSize);  // 12px
+    HBRUSH bgBrush = CreateSolidBrush(
+        RGB(static_cast<int>(colors.surfaceTile1.r * 255),
+            static_cast<int>(colors.surfaceTile1.g * 255),
+            static_cast<int>(colors.surfaceTile1.b * 255)));
     FillRect(memDc, &client, bgBrush);
     DeleteObject(bgBrush);
 
-    // 字体
+    // 字体 — Apple HIG: SF Pro Text 12px nav-link 字重 400
     HFONT font = CreateFontW(
-        -14, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+        -menuFontSize, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
         DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
         CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_DONTCARE,
-        L"Segoe UI");
+        L"Segoe UI Variable");
     SelectObject(memDc, font);
     SetBkMode(memDc, TRANSPARENT);
-    SetTextColor(memDc, RGB(230, 235, 245));
+    // Apple HIG: 暗色表面文本 = bodyOnDark (#ffffff)
+    SetTextColor(memDc,
+        RGB(static_cast<int>(colors.bodyOnDark.r * 255),
+            static_cast<int>(colors.bodyOnDark.g * 255),
+            static_cast<int>(colors.bodyOnDark.b * 255)));
 
     // 中央：时钟
     SYSTEMTIME st{};

@@ -1,4 +1,5 @@
 #include "app.h"
+#include "../design_tokens.h"
 
 // Dock controls, entries and running-application rendering.
 
@@ -6,6 +7,8 @@ bool DesktopApp::DrawDockControlBackground(
     ID2D1DeviceContext* ctx, RECT rect, int state, bool forceWhiteStyle)
 {
     if (!ctx || IsRectEmptyRect(rect)) return false;
+    using namespace snowdesktop::design_tokens;
+    const auto& colors = GetColorTokens();
     PersonalizationSettings appearance = PersonalizationSettings::DarkPreset();
     if (settingsWindow_)
         appearance = settingsWindow_->GetPersonalization();
@@ -17,20 +20,24 @@ bool DesktopApp::DrawDockControlBackground(
     const bool lightSurface = !forceWhiteStyle &&
         luminance > 0.58f && appearance.widgetAlpha > 0.10f;
     const bool active = state > 0;
+    // Apple HIG: 使用设计令牌颜色，保持单一品牌色 (#0066cc) 作为活跃色
     const D2D1_COLOR_F fill = forceWhiteStyle
-        ? D2D1::ColorF(1.0f, 1.0f, 1.0f, active ? 0.18f : 0.11f)
+        ? D2D1::ColorF(colors.canvas.r, colors.canvas.g, colors.canvas.b,
+            active ? 0.18f : 0.11f)
         : (active
-            ? D2D1::ColorF(0.39f, 0.66f, 1.0f, lightSurface ? 0.20f : 0.25f)
+            ? D2D1::ColorF(colors.primary.r, colors.primary.g, colors.primary.b,
+                lightSurface ? 0.20f : 0.25f)
             : (lightSurface
-                ? D2D1::ColorF(0.08f, 0.11f, 0.16f, 0.075f)
-                : D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.11f)));
+                ? D2D1::ColorF(colors.ink.r, colors.ink.g, colors.ink.b, 0.075f)
+                : D2D1::ColorF(colors.canvas.r, colors.canvas.g, colors.canvas.b, 0.11f)));
     const D2D1_COLOR_F border = forceWhiteStyle
-        ? D2D1::ColorF(1.0f, 1.0f, 1.0f, active ? 0.36f : 0.20f)
+        ? D2D1::ColorF(colors.canvas.r, colors.canvas.g, colors.canvas.b,
+            active ? 0.36f : 0.20f)
         : (active
-            ? D2D1::ColorF(0.39f, 0.66f, 1.0f, 0.88f)
+            ? D2D1::ColorF(colors.primary.r, colors.primary.g, colors.primary.b, 0.88f)
             : (lightSurface
-                ? D2D1::ColorF(0.08f, 0.11f, 0.16f, 0.14f)
-                : D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.20f)));
+                ? D2D1::ColorF(colors.ink.r, colors.ink.g, colors.ink.b, 0.14f)
+                : D2D1::ColorF(colors.canvas.r, colors.canvas.g, colors.canvas.b, 0.20f)));
     const int width = std::max(1, static_cast<int>(rect.right - rect.left));
     const int height = std::max(1, static_cast<int>(rect.bottom - rect.top));
     const float scale = static_cast<float>(std::min(width, height)) / 52.0f;
@@ -110,9 +117,12 @@ void DesktopApp::DrawDockSelectionIndicator(
         return;
 
     ComPtr<ID2D1SolidColorBrush> brush;
+    // Apple HIG: 使用设计令牌 primary 色 (#0066cc) 作为选中指示器
+    using namespace snowdesktop::design_tokens;
+    const auto& c = GetColorTokens();
     const D2D1_COLOR_F color = lightTheme
-        ? D2D1::ColorF(0.08f, 0.42f, 0.94f, 0.96f)
-        : D2D1::ColorF(0.35f, 0.68f, 1.0f, 1.0f);
+        ? D2D1::ColorF(c.primary.r, c.primary.g, c.primary.b, 0.96f)
+        : D2D1::ColorF(c.primaryOnDark.r, c.primaryOnDark.g, c.primaryOnDark.b, 1.0f);
     if (SUCCEEDED(ctx->CreateSolidColorBrush(color, &brush)) && brush)
         ctx->FillGeometry(geometry.Get(), brush.Get());
 }
