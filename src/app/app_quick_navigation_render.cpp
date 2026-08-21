@@ -13,10 +13,10 @@ void DesktopApp::EnsureQuickNavTextFormats()
 
     using namespace snowdesktop::design_tokens;
     const auto& typo = GetTypography();
-    // Apple HIG: 使用设计令牌字号（caption=14px, body=17px, caption-strong=14px, fine-print=12px）
-    const float tabSize = static_cast<float>(QuickNavScale(static_cast<int>(typo.caption.fontSize)));
-    const float itemSize = static_cast<float>(QuickNavScale(static_cast<int>(typo.bodyStrong.fontSize)));
-    const float pathSize = static_cast<float>(QuickNavScale(static_cast<int>(typo.finePrint.fontSize)));
+    // Apple HIG Dynamic Type: 使用系统字号缩放因子，确保所有排版跟随用户字号设置
+    const float tabSize = static_cast<float>(QuickNavScale(static_cast<int>(GetScaledFontSize(typo.caption.fontSize))));
+    const float itemSize = static_cast<float>(QuickNavScale(static_cast<int>(GetScaledFontSize(typo.bodyStrong.fontSize))));
+    const float pathSize = static_cast<float>(QuickNavScale(static_cast<int>(GetScaledFontSize(typo.finePrint.fontSize))));
     // Apple HIG: 深色用 300 字重（轻盈），浅色用 600（强调），与设计令牌一致
     const float itemWeightValue = quickNavLightTheme_ ? 600.0f : 300.0f;
     const DWRITE_FONT_WEIGHT itemWeight =

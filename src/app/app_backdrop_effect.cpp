@@ -75,16 +75,25 @@ void DesktopApp::DrawBackdropEffectPanel(
     {
         using namespace snowdesktop::design_tokens;
         const auto& glass = GetGlass();
-        // 根据面板面积自动选择模糊级别：小面板用 blurSmall，大面板用 blurLarge
-        const int panelPixels = (frame.right - frame.left) * (frame.bottom - frame.top);
-        float effectiveBlur = (panelPixels < 40000)
-            ? glass.blurSmall   // 8px — 小控件（按钮、芯片）
-            : (panelPixels < 200000)
-                ? glass.blurMedium  // 20px — 标准面板
-                : glass.blurLarge;  // 36px — 大覆盖层
-        // 用户自定义 glassBlurRadius 作为缩放因子（默认 20 对应 blurMedium）
-        if (p.glassBlurRadius > 0.0f)
-            effectiveBlur *= (p.glassBlurRadius / 20.0f);
+        float effectiveBlur;
+        if (false)  // Clear 模式预留：后续通过设置项或参数启用
+        {
+            // Apple HIG Liquid Glass Clear 模式：始终使用 blurSmall (8px)
+            // 用于媒体背景上的控件（视频播放器、照片浏览器），更高透明度
+            effectiveBlur = glass.blurSmall;
+        }
+        else
+        {
+            // Apple HIG Liquid Glass Regular 模式：按面板面积自动选择三级模糊
+            const int panelPixels = (frame.right - frame.left) * (frame.bottom - frame.top);
+            effectiveBlur = (panelPixels < 40000)
+                ? glass.blurSmall   // 8px — 小控件（按钮、芯片）
+                : (panelPixels < 200000)
+                    ? glass.blurMedium  // 20px — 标准面板
+                    : glass.blurLarge;  // 36px — 大覆盖层
+            if (p.glassBlurRadius > 0.0f)
+                effectiveBlur *= (p.glassBlurRadius / 20.0f);
+        }
 
         if (renderingFloatingDock_)
             floatingDockBackdropCompositor_.AddPanel(

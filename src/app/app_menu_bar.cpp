@@ -96,7 +96,7 @@ void DesktopApp::PaintMenuBarWindow(HWND hwnd)
     using namespace snowdesktop::design_tokens;
     const auto& colors = GetColorTokens();
     const auto& typo = GetTypography();
-    const int menuFontSize = static_cast<int>(typo.navLink.fontSize);  // 12px
+    const int menuFontSize = static_cast<int>(GetScaledFontSize(typo.navLink.fontSize));  // Dynamic Type 缩放
     HBRUSH bgBrush = CreateSolidBrush(
         RGB(static_cast<int>(colors.surfaceTile1.r * 255),
             static_cast<int>(colors.surfaceTile1.g * 255),

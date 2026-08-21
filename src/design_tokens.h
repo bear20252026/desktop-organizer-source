@@ -419,6 +419,101 @@ inline float GetConcentricRadius(float parentRadius, float padding)
     return std::max(0.0f, parentRadius - padding);
 }
 
+// ── Typography 字体家族回退链 ──────────────────────────────────
+// Apple HIG: SF Pro Display/Text 是标准字体。
+// 非 Apple 平台回退：SF Pro → Inter → Segoe UI Variable。
+// Inter 是最接近 SF Pro 的开源替代（字重 600 + ss03 ≈ SF Pro 圆体 a）。
+
+enum class FontFamily
+{
+    SFPro,           // Apple 原生 SF Pro
+    Inter,           // Google Inter（最接近 SF Pro 的开源替代）
+    SegoeUIVariable, // Windows 标准字体
+};
+
+/** @brief 检测系统可用的最佳字体家族。 */
+inline FontFamily DetectBestFontFamily()
+{
+    // 尝试检测 SF Pro（macOS/iOS 原生，Windows 需手动安装）
+    {
+        HKEY hKey{};
+        if (RegOpenKeyExW(HKEY_LOCAL_MACHINE,
+                L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts",
+                0, KEY_READ, &hKey) == ERROR_SUCCESS)
+        {
+            DWORD size = 0;
+            // SF Pro Text Regular
+            if (RegQueryValueExW(hKey, L"SF Pro Text Regular (TrueType)",
+                    nullptr, nullptr, nullptr, &size) == ERROR_SUCCESS)
+            {
+                RegCloseKey(hKey);
+                return FontFamily::SFPro;
+            }
+            RegCloseKey(hKey);
+        }
+    }
+    // 尝试检测 Inter
+    {
+        HKEY hKey{};
+        if (RegOpenKeyExW(HKEY_LOCAL_MACHINE,
+                L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts",
+                0, KEY_READ, &hKey) == ERROR_SUCCESS)
+        {
+            DWORD size = 0;
+            if (RegQueryValueExW(hKey, L"Inter Regular (TrueType)",
+                    nullptr, nullptr, nullptr, &size) == ERROR_SUCCESS)
+            {
+                RegCloseKey(hKey);
+                return FontFamily::Inter;
+            }
+            RegCloseKey(hKey);
+        }
+    }
+    // 回退到 Segoe UI Variable
+    return FontFamily::SegoeUIVariable;
+}
+
+/** @brief 获取当前字体家族的显示名称（用于 DWrite）。 */
+inline const wchar_t* GetDisplayFontName()
+{
+    static FontFamily detected = DetectBestFontFamily();
+    switch (detected)
+    {
+    case FontFamily::SFPro:           return L"SF Pro Display";
+    case FontFamily::Inter:           return L"Inter";
+    case FontFamily::SegoeUIVariable: return L"Segoe UI Variable";
+    }
+    return L"Segoe UI Variable";
+}
+
+/** @brief 获取当前字体家族的正文名称（用于 DWrite）。 */
+inline const wchar_t* GetBodyFontName()
+{
+    static FontFamily detected = DetectBestFontFamily();
+    switch (detected)
+    {
+    case FontFamily::SFPro:           return L"SF Pro Text";
+    case FontFamily::Inter:           return L"Inter";
+    case FontFamily::SegoeUIVariable: return L"Segoe UI Variable";
+    }
+    return L"Segoe UI Variable";
+}
+
+/** @brief 获取推荐的字间距补偿值（Inter 默认比 SF Pro 宽，需收紧）。 */
+inline float GetLetterSpacingCompensation()
+{
+    static FontFamily detected = DetectBestFontFamily();
+    // Apple HIG: 负字间距是"Apple tight"的标志，display 尺寸收紧 0.1~0.374px
+    // Inter 默认比 SF Pro 宽，需额外收紧 ~0.01em
+    switch (detected)
+    {
+    case FontFamily::SFPro:           return 0.0f;    // SF Pro 原生，无需补偿
+    case FontFamily::Inter:           return -0.01f;   // Inter 需收紧 ~0.01em
+    case FontFamily::SegoeUIVariable: return -0.005f;  // Segoe UI 略收紧
+    }
+    return 0.0f;
+}
+
 /** @brief 根据元素角色获取推荐的玻璃模糊半径。 */
 inline float GetBlurRadiusForRole(const char* role)
 {
@@ -437,7 +532,121 @@ inline float GetLightIntensity(bool active, bool focused)
     return kGlass.lightIntensityMedium;
 }
 
-// ── 可访问性自适应（Windows 无障碍设置检测）─────────────────────
+// ── Focus Ring 焦点环令牌 ───────────────────────────────────────
+// Apple HIG: 2px solid 焦点环，使用 primaryFocus 颜色 (#0071e3)
+// 键盘导航时显示，点击时隐藏。
+
+struct FocusRingTokens
+{
+    float width;          // 2.0px 焦点环宽度
+    float offset;         // 2.0px 焦点环与元素外边距的偏移
+    float borderRadius;   // 圆角，跟随元素圆角
+};
+
+inline const FocusRingTokens kFocusRing = {
+    2.0f,  // width — Apple HIG 标准 2px
+    2.0f,  // offset — 元素外 2px
+    4.0f,  // borderRadius — 基础圆角
+};
+
+/** @brief 根据元素角色获取焦点环圆角（与元素圆角对齐）。 */
+inline float GetFocusRingRadius(float elementCornerRadius)
+{
+    return elementCornerRadius + kFocusRing.offset;
+}
+
+/** @brief 创建焦点环矩形（向外扩展 offset + width）。 */
+inline RECT ExpandFocusRingBounds(RECT element, float offset, float width)
+{
+    RECT expanded{};
+    expanded.left = element.left - static_cast<LONG>(offset + width);
+    expanded.top = element.top - static_cast<LONG>(offset + width);
+    expanded.right = element.right + static_cast<LONG>(offset + width);
+    expanded.bottom = element.bottom + static_cast<LONG>(offset + width);
+    return expanded;
+}
+
+/** @brief 根据元素角色获取焦点环颜色（始终使用 primaryFocus）。 */
+inline D2D1_COLOR_F GetFocusRingColor()
+{
+    const auto& colors = GetColorTokens();
+    return colors.primaryFocus;
+}
+
+/** @brief 判断当前是否应显示焦点环（仅键盘导航时）。 */
+inline bool ShouldShowFocusRing(bool isKeyboardNavigation, bool isFocused)
+{
+    // Apple HIG: 焦点环仅在键盘导航且元素获焦时显示
+    return isKeyboardNavigation && isFocused;
+}
+
+// ── Spring 物理动画 ────────────────────────────────────────────
+// Apple HIG: 弹簧动画用于自然的 UI 过渡（出现/消失/位移/缩放）。
+// 参数：mass=1.0, stiffness=100.0, damping=15.0（临界阻尼附近，无过冲）。
+// 本函数计算弹簧动画在给定时间 t（秒）时的位置 [0.0, 1.0]。
+
+/** @brief 弹簧动画位置计算。
+ *  @param t 时间（秒，从 0 开始）
+ *  @param mass 质量（Apple HIG: 1.0）
+ *  @param stiffness 刚度（Apple HIG: 100.0）
+ *  @param damping 阻尼（Apple HIG: 15.0）
+ *  @return 归一化位置 [0.0, 1.0]，到达 1.0 时停止
+ */
+inline double SpringAnimation(double t, double mass, double stiffness, double damping)
+{
+    if (t <= 0.0) return 0.0;
+
+    // 阻尼比 ζ = damping / (2 * sqrt(stiffness * mass))
+    const double omega0 = std::sqrt(stiffness / mass);  // 自然频率
+    const double zeta = damping / (2.0 * std::sqrt(stiffness * mass));
+
+    double position;
+    if (zeta < 1.0)
+    {
+        // 欠阻尼（有振荡）—— 最常见情况
+        const double omegaD = omega0 * std::sqrt(1.0 - zeta * zeta);
+        const double decay = std::exp(-zeta * omega0 * t);
+        position = 1.0 - decay * (std::cos(omegaD * t) +
+            (zeta * omega0 / omegaD) * std::sin(omegaD * t));
+    }
+    else if (zeta == 1.0)
+    {
+        // 临界阻尼（无振荡，最快收敛）
+        const double decay = std::exp(-omega0 * t);
+        position = 1.0 - decay * (1.0 + omega0 * t);
+    }
+    else
+    {
+        // 过阻尼（慢收敛，无振荡）
+        const double s1 = -omega0 * (zeta + std::sqrt(zeta * zeta - 1.0));
+        const double s2 = -omega0 * (zeta - std::sqrt(zeta * zeta - 1.0));
+        const double c2 = (1.0 - s1) / (s2 - s1);
+        const double c1 = 1.0 - c2;
+        position = 1.0 - c1 * std::exp(s1 * t) - c2 * std::exp(s2 * t);
+    }
+
+    return std::clamp(position, 0.0, 1.0);
+}
+
+/** @brief 使用 Apple HIG 默认弹簧参数计算动画位置。 */
+inline double AppleSpringAnimation(double t)
+{
+    const auto& m = kMotion;
+    return SpringAnimation(t, m.springMass, m.springStiffness, m.springDamping);
+}
+
+/** @brief 弹簧动画是否已收敛（位置接近 1.0）。 */
+inline bool SpringAnimationConverged(double position, double threshold = 0.999)
+{
+    return position >= threshold;
+}
+
+/** @brief 弹簧动画的推荐时间步长（毫秒）。 */
+inline float GetSpringTimeStepMs()
+{
+    // Apple HIG: 标准时长 300ms，但弹簧动画实际时间由物理决定
+    return kMotion.standardDurationMs;
+}
 // Apple HIG：当用户开启"减少透明度""增强对比""减少动画"时，
 // 系统自动切换材质、颜色和动画行为。设计令牌需感知这些设置。
 
