@@ -49,7 +49,7 @@ bool DesktopApp::CreateMenuBarWindow()
     if (!menuBarHwnd_)
         return false;
 
-    // 半透明深色背景，模拟 macOS 菜单栏毛玻璃质感。
+    // Liquid Glass 材质：Windows 原生毛玻璃 + 分层透明，模拟 macOS 菜单栏玻璃质感
     SetLayeredWindowAttributes(
         menuBarHwnd_, RGB(24, 28, 38), 230, LWA_ALPHA);
 
@@ -57,6 +57,12 @@ bool DesktopApp::CreateMenuBarWindow()
     DwmSetWindowAttribute(menuBarHwnd_,
         DWMWA_TRANSITIONS_FORCEDISABLED,
         &disableTransitions, sizeof(disableTransitions));
+
+    // Apple HIG: 启用沉浸式暗色模式（DWM 深色标题栏）
+    const BOOL darkMode = TRUE;
+    DwmSetWindowAttribute(menuBarHwnd_,
+        20 /* DWMWA_USE_IMMERSIVE_DARK_MODE */,
+        &darkMode, sizeof(darkMode));
 
     SetTimer(menuBarHwnd_, kMenuBarClockTimerId,
         kMenuBarUpdateIntervalMs, nullptr);
