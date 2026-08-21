@@ -5797,7 +5797,9 @@ void SettingsWindow::SetupFonts()
     if (FILE* f = fopen(fontPath.c_str(), "rb"))
     {
         fclose(f);
-        io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 16.0f * dpiScale_, nullptr,
+        // Apple HIG Dynamic Type: 字号跟随系统 TextScaleFactor 自动缩放
+        io.Fonts->AddFontFromFileTTF(fontPath.c_str(),
+            snowdesktop::design_tokens::GetScaledFontSize(16.0f) * dpiScale_, nullptr,
             io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
     }
     else
