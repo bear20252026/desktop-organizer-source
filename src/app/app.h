@@ -647,6 +647,11 @@ private:
      * 全屏壁纸模糊面板，呈现 macOS 桌面质感。默认关闭，不影响现有行为。
      */
     void UpdateDesktopMicaBackdrop();
+
+    // ── 动态壁纸（macOS Sonoma 风格时间驱动壁纸轮换）─────────────────
+    void UpdateDynamicWallpaper();
+    void SetDynamicWallpaperTheme(const std::wstring& themePath);
+
     /** @brief 在圆角区域内绘制稳定平铺的低透明亚克力颗粒。 */
     void DrawAcrylicNoise(ID2D1DeviceContext* ctx, RECT frame, float radius,
         bool lightTheme, POINT screenOrigin);
@@ -2581,6 +2586,8 @@ private:
     HWND quickNavigationHwnd_ = nullptr;
     HWND floatingDockHwnd_ = nullptr;
     HWND menuBarHwnd_ = nullptr;
+    std::wstring dynamicWallpaperThemePath_;
+    std::wstring currentWallpaperPath_;
     HWND floatingDockHotkeyHwnd_ = nullptr;
     HWND desktopPassthroughHotkeyHwnd_ = nullptr;
     HWND floatingDockEdgeSwipeHwnd_ = nullptr;
