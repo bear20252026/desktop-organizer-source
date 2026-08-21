@@ -1550,16 +1550,16 @@ int main()
             magnification::ScaleForAxisDistance(0, 76) -
             magnification::kFocusScale) < 0.001f,
         "the focused Dock element must receive the maximum scale");
-    // Raised-cosine curve: at one item pitch the scale is 1.21f
-    // (1 + 0.28 * (1+cos(pi/3))/2) and at two pitches 1.07f.
+    // cos⁸ curve: at one item pitch the scale is 1.0886f
+    // and at two pitches ~1.0011f (concentrated bubble).
     Check(std::abs(
             magnification::ScaleForAxisDistance(76, 76) -
-            1.21f) < 0.001f,
-        "the first Dock neighbor must receive the continuous-curve scale");
+            1.0886f) < 0.002f,
+        "the first Dock neighbor must receive the cos8-curve scale");
     Check(std::abs(
             magnification::ScaleForAxisDistance(152, 76) -
-            1.07f) < 0.001f,
-        "the second Dock neighbor must receive the continuous-curve scale");
+            1.0011f) < 0.002f,
+        "the second Dock neighbor must receive the cos8-curve scale");
     Check(magnification::ScaleForAxisDistance(228, 76) == 1.0f,
         "distant Dock elements must retain their normal scale");
     Check(magnification::FocusSwitchHysteresisPixels(76) == 4 &&
@@ -1617,8 +1617,8 @@ int main()
 
     const std::vector<float> leadingZoneScales{
         magnification::kFocusScale,
-        1.21f,   // continuous raised-cosine value at one pitch
-        1.07f,   // continuous raised-cosine value at two pitches
+        1.0886f,  // cos⁸ value at one pitch
+        1.0011f,  // cos⁸ value at two pitches
         1.0f
     };
     const int leadingFocusShift =
@@ -1680,7 +1680,7 @@ int main()
     const RECT neighborDockElement{ 176, 200, 252, 288 };
     const RECT shiftedNeighbor = magnification::MagnifyRect(
         neighborDockElement, DockPosition::Bottom,
-        1.21f, 64, firstNeighborShift);
+        1.0886f, 64, firstNeighborShift);
     Check(shiftedNeighbor.left >= bottomMagnified.right,
         "neighbor displacement must preserve spacing beside the magnified focus");
 
@@ -1698,7 +1698,7 @@ int main()
         "edge-attached leading zone must keep icon spacing while packing inward");
 
     const std::vector<float> trailingZoneScales{
-        1.21f,   // continuous raised-cosine value at one pitch
+        1.0886f,  // cos⁸ value at one pitch
         magnification::kFocusScale
     };
     const int trailingInnerShift =

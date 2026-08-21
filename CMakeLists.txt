@@ -123,6 +123,7 @@ set(SNOWDESKTOP_SOURCES
     src/app/app_hit_testing.cpp
     src/app/app_icon_loader.cpp
     src/app/app_icon_render.cpp
+    src/app/app_menu_bar.cpp
     src/app/app_item_sorting.cpp
     src/app/app_item_menu.cpp
     src/app/app_keyboard_input.cpp

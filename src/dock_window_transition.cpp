@@ -146,6 +146,56 @@ RECT InterpolateDockWindowTransitionRect(
     return result;
 }
 
+/**
+ * @brief Genie magic-lamp deformation applied to the interpolated rect.
+ *
+ * The macOS Genie effect "pours" the window into the dock icon: the bottom
+ * edge leads while the top lags, and the horizontal width narrows toward the
+ * center as the animation progresses, creating a funnel shape.
+ *
+ * This function applies a non-uniform squeeze to the interpolated rect:
+ * - Horizontal: width shrinks by genieWidthFactor (narrowing toward center)
+ * - Vertical: bottom edge leads the animation (genieBottomLead factor)
+ * - The squeeze is strongest at the mid-animation point and relaxes at the end
+ */
+RECT ApplyGenieDeformation(
+    const RECT& from, const RECT& to,
+    double rawProgress, double easedProgress) noexcept
+{
+    // Genie squeeze: strongest at mid-animation, relaxing at the end.
+    // This creates the characteristic funnel that narrows then pours.
+    const double squeeze = std::sin(rawProgress * 3.14159265358979);
+    constexpr double kMaxHorizontalSqueeze = 0.35;
+    constexpr double kBottomLeadFactor = 0.15;
+    const double widthFactor = 1.0 - squeeze * kMaxHorizontalSqueeze;
+    const double bottomLead = squeeze * kBottomLeadFactor;
+    const auto lerp = [easedProgress](double a, double b) {
+        return a + (b - a) * easedProgress;
+    };
+    const double fromCx = (from.left + from.right) * 0.5;
+    const double toCx = (to.left + to.right) * 0.5;
+    const double fromW = from.right - from.left;
+    const double toW = to.right - to.left;
+    const double fromH = from.bottom - from.top;
+    const double toH = to.bottom - to.top;
+    const double cx = lerp(fromCx, toCx);
+    const double w = lerp(fromW, toW) * widthFactor;
+    const double h = lerp(fromH, toH);
+    const double top = lerp(from.top, to.top) - bottomLead * h * 0.5;
+    const double bottom = top + h;
+    RECT result{
+        static_cast<LONG>(std::lround(cx - w * 0.5)),
+        static_cast<LONG>(std::lround(top)),
+        static_cast<LONG>(std::lround(cx + w * 0.5)),
+        static_cast<LONG>(std::lround(bottom))
+    };
+    if (result.right <= result.left)
+        result.right = result.left + 1;
+    if (result.bottom <= result.top)
+        result.bottom = result.top + 1;
+    return result;
+}
+
 RECT ResolveDockWindowSnapshotHostRect(
     const RECT& from, const RECT& to) noexcept
 {
@@ -1201,13 +1251,29 @@ bool DockWindowTransition::ApplyFrame(double progress)
             DockWindowTransitionSurface::None)
         return false;
 
-    const RECT frame = InterpolateDockWindowTransitionRect(
-        fromRect_, toRect_, progress);
+    const double eased =
+        EaseDockWindowTransition(progress);
+    // Genie magic-lamp deformation: during minimize, the window
+    // narrows horizontally and the bottom edge leads the pour,
+    // creating the iconic funnel shape. Restore uses plain interpolation.
+    const RECT frame =
+        direction_ == DockWindowTransitionDirection::Minimize
+            ? ApplyGenieDeformation(
+                  fromRect_, toRect_, progress, eased)
+            : InterpolateDockWindowTransitionRect(
+                  fromRect_, toRect_, progress);
     const int width = std::max(1L, frame.right - frame.left);
     const int height =
         std::max(1L, frame.bottom - frame.top);
-    const double eased =
-        EaseDockWindowTransition(progress);
+    // Genie content fade: the window content fades out over the last
+    // quarter of the minimize so it doesn't "pop" at the dock icon.
+    // A cubic ease-in accelerates the fade near the end.
+    const double genieFadeEased =
+        direction_ == DockWindowTransitionDirection::Minimize
+            ? eased * eased * (1.0 + 0.6 * eased)
+            : eased;
+    const double opacityProgress =
+        std::clamp(genieFadeEased, 0.0, 1.0);
     const BYTE frameOpacity =
         static_cast<BYTE>(std::clamp(
             static_cast<int>(std::lround(
@@ -1217,7 +1283,7 @@ bool DockWindowTransition::ApplyFrame(double progress)
                     animationToOpacity_) -
                     static_cast<double>(
                         animationFromOpacity_)) *
-                    eased)),
+                    opacityProgress)),
             0, 255));
     const int cornerRadius =
         ResolveDockWindowTransitionCornerRadius(

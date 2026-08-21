@@ -974,6 +974,12 @@ private:
     bool CreateQuickNavigationWindow();
     /** @brief 销毁快速导航窗口。 */
     void DestroyQuickNavigationWindow();
+
+    // ── 顶部菜单栏（macOS 风格系统状态栏）─────────────────────────
+    bool CreateMenuBarWindow();
+    void DestroyMenuBarWindow();
+    void PaintMenuBarWindow(HWND hwnd);
+
     /** @brief 计算并设置快速导航窗口的位置。 */
     void PositionQuickNavigationWindow();
     /** @brief 在动画路径区域与最终面板区域之间切换原生窗口裁剪。 */
@@ -2574,6 +2580,7 @@ private:
     HWND floatingDockInputHwnd_ = nullptr;
     HWND quickNavigationHwnd_ = nullptr;
     HWND floatingDockHwnd_ = nullptr;
+    HWND menuBarHwnd_ = nullptr;
     HWND floatingDockHotkeyHwnd_ = nullptr;
     HWND desktopPassthroughHotkeyHwnd_ = nullptr;
     HWND floatingDockEdgeSwipeHwnd_ = nullptr;

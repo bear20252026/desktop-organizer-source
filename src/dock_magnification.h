@@ -69,22 +69,27 @@ inline float ScaleForAxisDistance(
         static_cast<float>(pitch);
     if (distanceInItems >= kInfluenceRadiusInItems)
         return 1.0f;
-    // macOS raised-cosine fisheye: a single continuous curve (instead of the
-    // old three-step discrete profile) that peaks at the pointer and decays
-    // smoothly to rest at the influence radius — the same shape macOS uses.
+    // cos⁸ fisheye: the authentic macOS Dock magnification curve (ImCoolBar
+    // reference). Narrower and more localized than raised-cosine — the peak
+    // concentrates tightly around the cursor, giving the signature "bubble"
+    // feel of the Aqua Dock. cos⁸(x) = (cos(x))^8.
     constexpr float kPi = 3.14159265358979f;
     const float t = distanceInItems / kInfluenceRadiusInItems; // 0..1
-    const float cosine = (1.0f + std::cos(kPi * t)) * 0.5f;    // 1..0
-    return 1.0f + (kFocusScale - 1.0f) * cosine;
+    const float c = std::cos(kPi * 0.5f * t); // 1..0 over 0..R
+    const float envelope = c * c * c * c * c * c * c * c; // cos⁸
+    return 1.0f + (kFocusScale - 1.0f) * envelope;
 }
 
 inline double IntegratedGrowthInItems(
     double distanceInItems)
 {
-    // Analytic integral of the raised-cosine growth profile used by
+    // Analytic integral of the cos⁸ growth profile used by
     // ScaleForAxisDistance, so packed icon shifts stay consistent with the
-    // continuous magnification curve (old three-step discrete segments
-    // removed). growth(t) = A/2·(1 + cos(πt)), t = distance/R, A = peak-1.
+    // cos⁸ magnification curve. growth(d) = A·cos⁸(πd/(2R)).
+    //
+    // ∫₀ᵗ Acos⁸(πu/2)Rdu = A·R/(128π)·[35πt + 84sin(πt)
+    //   + 28sin(2πt) + (28/3)sin(3πt) + 2sin(4πt)]
+    // where t = distance/R.
     constexpr double kR = static_cast<double>(
         kInfluenceRadiusInItems);
     constexpr double kPi = 3.14159265358979;
@@ -92,9 +97,13 @@ inline double IntegratedGrowthInItems(
         distanceInItems, 0.0, kR);
     const double t = distance / kR; // 0..1
     const double A = static_cast<double>(kFocusScale - 1.0f);
-    // ∫₀ᵗ A/2·(1+cos(πu))·R du = A/2·R·(t + sin(πt)/π)
-    return A * 0.5 * kR *
-        (t + std::sin(kPi * t) / kPi);
+    const double pt = kPi * t;
+    return A * kR / (128.0 * kPi) *
+        (35.0 * pt
+         + 84.0 * std::sin(pt)
+         + 28.0 * std::sin(2.0 * pt)
+         + (28.0 / 3.0) * std::sin(3.0 * pt)
+         + 2.0 * std::sin(4.0 * pt));
 }
 
 inline int AxisShiftForDistance(
