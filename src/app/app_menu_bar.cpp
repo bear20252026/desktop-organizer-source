@@ -49,9 +49,14 @@ bool DesktopApp::CreateMenuBarWindow()
     if (!menuBarHwnd_)
         return false;
 
-    // Liquid Glass 材质：Windows 原生毛玻璃 + 分层透明，模拟 macOS 菜单栏玻璃质感
-    SetLayeredWindowAttributes(
-        menuBarHwnd_, RGB(24, 28, 38), 230, LWA_ALPHA);
+    // Liquid Glass 材质：启用 Windows 11 原生 Mica 效果
+    const int backdropType = 2; // DWMSBT_MAINWINDOW (Mica)
+    DwmSetWindowAttribute(menuBarHwnd_,
+        38 /* DWMWA_SYSTEMBACKDROP_TYPE */,
+        &backdropType, sizeof(backdropType));
+
+    // 透明化：微透（alpha=220），让 Mica 壁纸模糊轻微透出，模拟 macOS 菜单栏。
+    SetLayeredWindowAttributes(menuBarHwnd_, RGB(0, 0, 0), 220, LWA_ALPHA);
 
     const BOOL disableTransitions = TRUE;
     DwmSetWindowAttribute(menuBarHwnd_,
@@ -63,14 +68,6 @@ bool DesktopApp::CreateMenuBarWindow()
     DwmSetWindowAttribute(menuBarHwnd_,
         20 /* DWMWA_USE_IMMERSIVE_DARK_MODE */,
         &darkMode, sizeof(darkMode));
-
-    // Liquid Glass 材质：启用 Windows 11 原生 Mica 效果
-    // （DWMSBT_MAINWINDOW = 2，DWMWA_SYSTEMBACKDROP_TYPE = 38）
-    // 使菜单栏获得真正的壁纸采样模糊效果，模拟 macOS 菜单栏毛玻璃质感。
-    const int backdropType = 2; // DWMSBT_MAINWINDOW (Mica)
-    DwmSetWindowAttribute(menuBarHwnd_,
-        38 /* DWMWA_SYSTEMBACKDROP_TYPE */,
-        &backdropType, sizeof(backdropType));
 
     SetTimer(menuBarHwnd_, kMenuBarClockTimerId,
         kMenuBarUpdateIntervalMs, nullptr);

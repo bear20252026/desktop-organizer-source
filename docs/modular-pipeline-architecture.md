@@ -32,8 +32,13 @@
 | 模块 | 文件 | 层级 | 职责 | 输入 | 输出 |
 |------|------|------|------|------|------|
 | **设计令牌** | `design_tokens.h` | L3 基础 | 颜色/间距/圆角/阴影/运动/材质/排版/可访问性令牌 | 系统设置（注册表） | 令牌常量 + 适配函数 |
-| **毛玻璃管道** | `app_backdrop_effect.cpp` | L4 特效 | Capture→Blur→Tint→Noise→Sheen→Refraction→Compose | 帧矩形 + 主题设置 | D2D 绘制命令 |
+| **毛玻璃管道** | `app_backdrop_effect.cpp` | L4 特效 | Capture→Blur→Tint→Noise→Sheen→Refract→Compose 六节点；`DrawLiquidGlassSurface()` 统一入口 | 帧矩形 + 主题设置 | D2D 绘制命令 |
+| **Liquid Glass 统一入口** | `app_backdrop_effect.cpp` | L4 特效 | 便捷封装：一行调用获得完整 Liquid Glass 材质（Dock/Widget/设置页面通用） | 帧矩形 + 圆角 + 是否选中 | 完整六节点管道 |
 | **单光源** | `app_glass_render.cpp` | L5 渲染 | 玻璃边框渐变（35° 左上光源 + 三档亮度） | 颜色 + 光强令牌 | 径向渐变绘制 |
+| **剪贴板历史** | `widgets/clipboard-history/` | L3 基础 | macOS Tahoe 风格剪贴板历史（8小时保留、快速粘贴/复制/删除） | 用户交互 + 剪贴板数据 | 历史列表 UI |
+| **Stacks 堆叠** | `widgets/stacks/` | L3 基础 | macOS 风格文件自动分组（类型/日期/扩展名） | 桌面文件列表 | 分组堆叠 UI |
+| **文件夹标签** | `widgets/folder-tags/` | L3 基础 | macOS 风格文件夹颜色/符号标签 | 用户选择 | 标签应用 |
+| **智能文件夹** | `widgets/smart-folder/` | L3 基础 | macOS 风格保存搜索查询自动更新 | 搜索关键词 | 实时结果 |
 | **圆角系统** | `design_tokens.h` | L3 基础 | Fixed/Capsule/Concentric 三种圆角计算 | 元素尺寸/层级 | 圆角半径值 |
 | **动态排版** | `design_tokens.h` | L3 基础 | SF Pro→Inter→Segoe UI Variable 回退 + 字号缩放 | 系统 TextScaleFactor | 字体名 + 缩放字号 |
 | **深色主题** | `design_tokens.h` | L3 基础 | kLightTheme/kDarkTheme 切换 + 系统跟随 | 注册表 AppsUseLightTheme | 色彩令牌 |
