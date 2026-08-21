@@ -101,28 +101,38 @@ PersonalizationSettings PersonalizationSettings::LightPreset()
 PersonalizationSettings PersonalizationSettings::GlassDarkPreset()
 {
     PersonalizationSettings s = DarkPreset();
-    s.widgetBgR = 0.06f; s.widgetBgG = 0.08f; s.widgetBgB = 0.12f;
+    // Apple HIG Liquid Glass Regular — 深色模式材质参数
+    // 背景色: 略微偏蓝的深灰（#0F1318），与苹果暗色材质一致
+    s.widgetBgR = 0.059f; s.widgetBgG = 0.075f; s.widgetBgB = 0.094f;
+    // 边框: 极低不透明度白色（苹果设计：玻璃边框几乎不可见）
     s.widgetBorderR = 1.0f; s.widgetBorderG = 1.0f; s.widgetBorderB = 1.0f;
-    s.widgetAlpha = 0.25f; s.widgetBorderAlpha = 0.22f;
+    s.widgetAlpha = 0.22f; s.widgetBorderAlpha = 0.18f;
     s.backgroundPreset = kAppearancePresetGlassDark;
     s.gradientEndA = 0.0f;
     s.glassEnabled = true;
-    s.glassBlurRadius = 28.0f;
-    s.cornerRadius = 16.0f;
+    // Apple HIG: 模糊半径 20px（标准面板），饱和度 1.4x
+    s.glassBlurRadius = 20.0f;
+    // Apple HIG: 连续圆角 11px（md 级，卡片/面板标准）
+    s.cornerRadius = 11.0f;
     return s;
 }
 
 PersonalizationSettings PersonalizationSettings::GlassLightPreset()
 {
     PersonalizationSettings s = LightPreset();
-    s.widgetBgR = 0.94f; s.widgetBgG = 0.96f; s.widgetBgB = 1.0f;
-    s.widgetBorderR = 0.55f; s.widgetBorderG = 0.55f; s.widgetBorderB = 0.60f;
-    s.widgetAlpha = 0.18f; s.widgetBorderAlpha = 0.30f;
+    // Apple HIG Liquid Glass Regular — 浅色模式材质参数
+    // 背景色: 极淡蓝白（#F0F2F5），苹果浅色毛玻璃质感
+    s.widgetBgR = 0.941f; s.widgetBgG = 0.949f; s.widgetBgB = 0.961f;
+    // 边框: 柔灰色（#BFBFBF），苹果浅色玻璃边框风格
+    s.widgetBorderR = 0.75f; s.widgetBorderG = 0.75f; s.widgetBorderB = 0.75f;
+    s.widgetAlpha = 0.15f; s.widgetBorderAlpha = 0.25f;
     s.backgroundPreset = kAppearancePresetGlassLight;
     s.gradientEndA = 0.0f;
     s.glassEnabled = true;
-    s.glassBlurRadius = 26.0f;
-    s.cornerRadius = 16.0f;
+    // Apple HIG: 浅色模式模糊半径 16px（比深色略小，更通透）
+    s.glassBlurRadius = 16.0f;
+    // Apple HIG: 连续圆角 11px（md 级，卡片/面板标准）
+    s.cornerRadius = 11.0f;
     s.contentTheme = 0;
     return s;
 }
