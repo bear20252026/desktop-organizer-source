@@ -1,4 +1,5 @@
 #include "app.h"
+#include "../design_tokens.h"
 
 // Settings application, desktop passthrough and retained-surface visibility.
 
@@ -232,6 +233,14 @@ void DesktopApp::ApplyQuickNavigationAppearance()
     quickNavLightTheme_ = (presetId == kAppearancePresetLight ||
         presetId == kAppearancePresetAcrylicLight) ||
         luminance >= 0.55f;
+    // Apple HIG: 系统深色模式时，Spotlight 主题跟随系统（除非用户明确选择亮色预设）
+    if (!(presetId == kAppearancePresetLight ||
+          presetId == kAppearancePresetAcrylicLight))
+    {
+        using namespace snowdesktop::design_tokens;
+        if (gThemeState.initialized && gThemeState.isDarkMode)
+            quickNavLightTheme_ = false;
+    }
     quickNavGlassTheme_ = appearance.glassEnabled;
     quickNavBlurRadius_ = std::clamp(appearance.glassBlurRadius, 4.0f, 48.0f);
     quickNavAppearance_ = appearance;
