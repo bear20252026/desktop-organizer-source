@@ -1,6 +1,28 @@
 #include "app.h"
 #include "quick_navigation_helpers.h"
 
+// ── Quick Navigation Pipeline（Spotlight 搜索模块）──────────────────────────
+//
+// 模块总览：macOS Spotlight 风格的全局搜索面板，跨 6 文件分层，单向数据流：
+//
+//   [L1/L7] window.cpp      窗口生命周期（创建/销毁/置顶/热键注册）
+//        │
+//        ▼
+//   [L2]    messages.cpp    消息分发（HandleQuickNavigationMessage 路由键盘/鼠标）
+//        │
+//        ├──▶ [L2/L7] interaction.cpp  输入交互（鼠标悬停/点击/键盘导航/重命名）
+//        │
+//        ├──▶ [L3]    model.cpp        数据模型（应用索引/Everything 搜索结果）
+//        │
+//        ├──▶ [L3/L5] layout.cpp       布局引擎（面板定位/标签页/搜索结果布局）
+//        │
+//        └──▶ [L5/L6] render.cpp       渲染管线（D2D 绘制/DComp 表面提交）
+//
+// 管道约束（沿用 docs/architecture-pipeline.md）：
+//   - 单向流动：高层层不反向调用低层内部状态
+//   - 接口即管道：层间只通过 DesktopApp 成员函数通信
+//   - 功能即节点：每个 .cpp 是一个独立节点，节点间不互相 #include
+
 // Quick-navigation hotkey, window, search edit and positioning lifecycle.
 
 void DesktopApp::UnregisterNavigationHotkey()

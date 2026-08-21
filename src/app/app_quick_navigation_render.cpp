@@ -407,6 +407,36 @@ void DesktopApp::PaintQuickNavigationWindow(HWND hwnd)
         static_cast<float>(QuickNavScale(12)) / 2.0f,
         ToD2DColor(t.searchBg), ToD2DColor(t.searchBorder));
 
+    // macOS Spotlight 风格：空状态时在搜索框左侧绘制放大镜占位图标。
+    // 使用 Fluent System Icons 的 Search 图标（U+E721），与系统搜索框一致。
+    if (!searching)
+    {
+        if (quickNavFluentTextFormat_)
+        {
+            const float iconSize = static_cast<float>(QuickNavScale(14));
+            const int iconPad = QuickNavScale(8);
+            RECT iconRect = MakeRect(
+                searchRect.left + iconPad,
+                searchRect.top,
+                searchRect.left + iconPad + iconSize + QuickNavScale(4),
+                searchRect.bottom);
+            D2D1_COLOR_F iconColor = D2D1::ColorF(
+                quickNavAppearance_.widgetBorderR,
+                quickNavAppearance_.widgetBorderG,
+                quickNavAppearance_.widgetBorderB,
+                0.45f);
+            ComPtr<ID2D1SolidColorBrush> iconBrush;
+            if (SUCCEEDED(ctx->CreateSolidColorBrush(iconColor, &iconBrush)) && iconBrush)
+            {
+                // U+E721 = Search (magnifying glass) in Fluent System Icons
+                const wchar_t kSearchIcon[] = { 0xE721, 0 };
+                ctx->DrawText(kSearchIcon, 1,
+                    quickNavFluentTextFormat_.Get(),
+                    ToD2DRect(iconRect), iconBrush.Get());
+            }
+        }
+    }
+
     if (!searching)
     {
         RECT tabs = GetQuickNavigationTabsRect(overlay);
