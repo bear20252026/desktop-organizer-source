@@ -561,12 +561,13 @@ static void SetupLightTheme()
     c[ImGuiCol_Header]               = ImVec4(0.94f, 0.94f, 0.96f, 1.00f);  // 浅表面色
     c[ImGuiCol_HeaderHovered]        = ImVec4(0.88f, 0.88f, 0.92f, 1.00f);
     c[ImGuiCol_HeaderActive]         = ImVec4(0.82f, 0.82f, 0.87f, 1.00f);
-    // Apple HIG 按钮色: primary (#0066cc) + focus (#0071e3)
-    c[ImGuiCol_Button]               = ImVec4(0.00f, 0.40f, 0.80f, 1.00f);  // primary #0066cc
+    // Apple HIG 按钮色: primary (#0066cc) — 从 ComponentTokens 统一读取
+    const auto& comp = snowdesktop::design_tokens::GetComponentTokens();
+    c[ImGuiCol_Button]               = ImVec4(comp.buttonPrimary.backgroundColor.r, comp.buttonPrimary.backgroundColor.g, comp.buttonPrimary.backgroundColor.b, comp.buttonPrimary.backgroundColor.a);
     c[ImGuiCol_ButtonHovered]        = ImVec4(0.00f, 0.44f, 0.89f, 1.00f);  // primary-focus #0071e3
     c[ImGuiCol_ButtonActive]         = ImVec4(0.00f, 0.35f, 0.72f, 1.00f);  // primary 按下
-    c[ImGuiCol_CheckMark]            = ImVec4(0.00f, 0.40f, 0.80f, 1.00f);  // primary
-    c[ImGuiCol_SliderGrab]           = ImVec4(0.00f, 0.40f, 0.80f, 1.00f);  // primary
+    c[ImGuiCol_CheckMark]            = ImVec4(comp.buttonPrimary.backgroundColor.r, comp.buttonPrimary.backgroundColor.g, comp.buttonPrimary.backgroundColor.b, 1.00f);
+    c[ImGuiCol_SliderGrab]           = ImVec4(comp.buttonPrimary.backgroundColor.r, comp.buttonPrimary.backgroundColor.g, comp.buttonPrimary.backgroundColor.b, 1.00f);
     c[ImGuiCol_SliderGrabActive]     = ImVec4(0.00f, 0.44f, 0.89f, 1.00f);  // primary-focus
     c[ImGuiCol_Tab]                  = ImVec4(0.94f, 0.94f, 0.96f, 1.00f);
     c[ImGuiCol_TabHovered]           = ImVec4(0.88f, 0.88f, 0.92f, 1.00f);
@@ -622,13 +623,14 @@ static void SetupDarkTheme()
     c[ImGuiCol_Header]               = ImVec4(0.16f, 0.16f, 0.17f, 1.00f);
     c[ImGuiCol_HeaderHovered]        = ImVec4(0.22f, 0.22f, 0.23f, 1.00f);
     c[ImGuiCol_HeaderActive]         = ImVec4(0.28f, 0.28f, 0.30f, 1.00f);
-    // Apple HIG kDarkTheme 按钮色: primary (#2997ff Sky Link Blue)
-    c[ImGuiCol_Button]               = ImVec4(0.16f, 0.60f, 1.00f, 1.00f);  // primary #2997ff
+    // Apple HIG kDarkTheme 按钮色: primary (#2997ff Sky Link Blue) — 从 ComponentTokens 统一读取
+    const auto& compDark = snowdesktop::design_tokens::GetComponentTokens();
+    c[ImGuiCol_Button]               = ImVec4(compDark.buttonPrimary.backgroundColor.r, compDark.buttonPrimary.backgroundColor.g, compDark.buttonPrimary.backgroundColor.b, 1.00f);
     c[ImGuiCol_ButtonHovered]        = ImVec4(0.18f, 0.63f, 1.00f, 1.00f);  // primaryFocus
     c[ImGuiCol_ButtonActive]         = ImVec4(0.12f, 0.52f, 0.90f, 1.00f);  // primary 按下
-    c[ImGuiCol_CheckMark]            = ImVec4(0.16f, 0.60f, 1.00f, 1.00f);
-    c[ImGuiCol_SliderGrab]           = ImVec4(0.16f, 0.60f, 1.00f, 1.00f);
-    c[ImGuiCol_SliderGrabActive]     = ImVec4(0.18f, 0.63f, 1.00f, 1.00f);
+    c[ImGuiCol_CheckMark]            = ImVec4(compDark.buttonPrimary.backgroundColor.r, compDark.buttonPrimary.backgroundColor.g, compDark.buttonPrimary.backgroundColor.b, 1.00f);
+    c[ImGuiCol_SliderGrab]           = ImVec4(compDark.buttonPrimary.backgroundColor.r, compDark.buttonPrimary.backgroundColor.g, compDark.buttonPrimary.backgroundColor.b, 1.00f);
+    c[ImGuiCol_SliderGrabActive]     = ImVec4(0.18f, 0.63f, 1.00f, 1.00f);  // primary-focus
     c[ImGuiCol_Tab]                  = ImVec4(0.16f, 0.16f, 0.17f, 1.00f);
     c[ImGuiCol_TabHovered]           = ImVec4(0.22f, 0.22f, 0.23f, 1.00f);
     c[ImGuiCol_TabActive]            = ImVec4(0.11f, 0.11f, 0.12f, 1.00f);  // canvas 暗
