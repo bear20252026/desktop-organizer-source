@@ -151,14 +151,33 @@ void DesktopApp::PaintMenuBarWindow(HWND hwnd)
     TextOutW(memDc, 12, (h - timeSize.cy) / 2,
         appName, static_cast<int>(wcslen(appName)));
 
-    // 右侧：电池 + WiFi + 音量
+    // 右侧：电池（充电状态）+ WiFi + 音量
     int rightX = w - 12;
-    wchar_t rightBuf[96]{};
+    wchar_t rightBuf[128]{};
     int rightLen = 0;
     SYSTEM_POWER_STATUS powerStatus{};
     if (GetSystemPowerStatus(&powerStatus))
     {
-        rightLen += wsprintfW(rightBuf + rightLen, L" %d%%", powerStatus.BatteryLifePercent);
+        // macOS 风格：充电时显示闪电⚡，低电量时显示电池图标
+        const bool charging = (powerStatus.ACLineStatus == 1);
+        const bool lowBattery = powerStatus.BatteryLifePercent <= 20;
+        const wchar_t* battIcon = charging ? L"⚡" : (lowBattery ? L"🪫" : L"🔋");
+        rightLen += wsprintfW(rightBuf + rightLen, L" %s %d%%", battIcon, powerStatus.BatteryLifePercent);
+        // 充电中且电量未满时显示充电状态
+        if (charging && powerStatus.BatteryLifePercent < 100)
+        {
+            rightLen += wsprintfW(rightBuf + rightLen, L" Charging");
+        }
+        // 电池寿命（如果可用）
+        if (powerStatus.BatteryLifeTime != (DWORD)-1 && powerStatus.BatteryLifePercent < 100 && !charging)
+        {
+            int hours = powerStatus.BatteryLifeTime / 3600;
+            int mins  = (powerStatus.BatteryLifeTime % 3600) / 60;
+            if (hours > 0)
+                rightLen += wsprintfW(rightBuf + rightLen, L" (%dh%dm)", hours, mins);
+            else
+                rightLen += wsprintfW(rightBuf + rightLen, L" (%dm)", mins);
+        }
     }
     // WiFi 状态（通过 wininet.dll 动态加载 InternetGetConnectedState
     // 检测系统级网络连接状态，无链接依赖；比 socket 探测更准确）

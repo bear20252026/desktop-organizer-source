@@ -1157,7 +1157,10 @@ void SettingsWindow::Render()
         return;
     }
 
-    const float clearColor[4] = { 0.96f, 0.96f, 0.97f, 1.0f };
+    // 清除色跟随当前主题（深色/浅色自动切换）
+    using namespace snowdesktop::design_tokens;
+    const auto& colors = GetColorTokens();
+    const float clearColor[4] = { colors.canvas.r, colors.canvas.g, colors.canvas.b, 1.0f };
     context_->OMSetRenderTargets(1, rtv_.GetAddressOf(), nullptr);
     context_->ClearRenderTargetView(rtv_.Get(), clearColor);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
