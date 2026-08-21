@@ -260,6 +260,73 @@ inline const TypographyTokens kTypography = {
     /* navLink */       {12.0f, 400.0f, 1.0f, -0.12f},
 };
 
+// ── 组件级样式令牌（Component Tokens）────────────────────────────
+// Apple HIG DESIGN.md 组件规范：每个组件是颜色/排版/圆角/间距的组合
+
+struct ComponentStyle
+{
+    D2D1_COLOR_F backgroundColor;
+    D2D1_COLOR_F textColor;
+    float fontSize;
+    float fontWeight;
+    float cornerRadius;
+    float padH;  // 水平内边距
+    float padV;  // 垂直内边距
+};
+
+struct ComponentTokens
+{
+    ComponentStyle buttonPrimary;       // 主按钮：primary底色 + pill圆角
+    ComponentStyle buttonSecondaryPill; // 次要胶囊：canvas底色 + primary文字
+    ComponentStyle buttonDarkUtility;   // 暗色工具按钮：ink底色 + onDark文字
+    ComponentStyle buttonPearlCapsule;  // 珍珠胶囊：surfacePearl底色 + ink-muted-80文字
+    ComponentStyle buttonIconCircular;  // 圆形图标按钮：surface-chip-translucent底色
+    ComponentStyle textLink;            // 文字链接：透明底色 + primary文字
+    ComponentStyle searchInput;         // 搜索输入：canvas底色 + pill圆角 + body字号
+    ComponentStyle card;                // 通用卡片：canvas底色 + lg圆角 + body-strong字号
+    ComponentStyle globalNav;           // 全局导航栏：surface-black底色 + onDark文字 + nav-link字号
+    ComponentStyle subNavFrosted;       // 子导航（毛玻璃）：canvas-parchment底色 + ink文字
+};
+
+inline const ComponentTokens kComponents = {
+    /* buttonPrimary */
+    {{0.0f, 0.40f, 0.80f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f},
+     17.0f, 400.0f, 9999.0f, 22.0f, 11.0f},
+    /* buttonSecondaryPill */
+    {{1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.40f, 0.80f, 1.0f},
+     17.0f, 400.0f, 9999.0f, 22.0f, 11.0f},
+    /* buttonDarkUtility */
+    {{0.11f, 0.11f, 0.12f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f},
+     14.0f, 400.0f, 8.0f, 15.0f, 8.0f},
+    /* buttonPearlCapsule */
+    {{0.98f, 0.98f, 0.99f, 1.0f}, {0.20f, 0.20f, 0.20f, 1.0f},
+     14.0f, 400.0f, 11.0f, 14.0f, 8.0f},
+    /* buttonIconCircular */
+    {{0.82f, 0.82f, 0.84f, 1.0f}, {0.11f, 0.11f, 0.12f, 1.0f},
+     0.0f, 0.0f, 9999.0f, 0.0f, 0.0f},
+    /* textLink */
+    {{0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.40f, 0.80f, 1.0f},
+     17.0f, 400.0f, 0.0f, 0.0f, 0.0f},
+    /* searchInput */
+    {{1.0f, 1.0f, 1.0f, 1.0f}, {0.11f, 0.11f, 0.12f, 1.0f},
+     17.0f, 400.0f, 9999.0f, 20.0f, 12.0f},
+    /* card */
+    {{1.0f, 1.0f, 1.0f, 1.0f}, {0.11f, 0.11f, 0.12f, 1.0f},
+     17.0f, 600.0f, 18.0f, 24.0f, 24.0f},
+    /* globalNav */
+    {{0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f},
+     12.0f, 400.0f, 0.0f, 0.0f, 0.0f},
+    /* subNavFrosted */
+    {{0.96f, 0.96f, 0.97f, 1.0f}, {0.11f, 0.11f, 0.12f, 1.0f},
+     21.0f, 600.0f, 0.0f, 0.0f, 0.0f},
+};
+
+/** @brief 获取当前主题的组件令牌。深色模式适配由调用方根据 GetColorTokens() 处理。 */
+inline const ComponentTokens& GetComponentTokens()
+{
+    return kComponents;
+}
+
 // ── 可访问性令牌（Accessibility Tokens）────────────────────────
 // 苹果设计：当用户开启系统无障碍设置时自动适配
 
