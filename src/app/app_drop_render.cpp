@@ -1,4 +1,5 @@
 #include "app.h"
+#include "../design_tokens.h"
 
 // Desktop drop-preview rendering, caching and deferred placement.
 
@@ -6,6 +7,7 @@ void DesktopApp::DrawDesktopDropPreviewList(ID2D1DeviceContext* ctx,
     const DropPreviewList& preview)
 {
     if (!ctx) return;
+    using namespace snowdesktop::design_tokens;
     for (const auto& landing : preview.landings)
     {
         if (landing.kind != DropLandingKind::DesktopCell) continue;
@@ -14,7 +16,8 @@ void DesktopApp::DrawDesktopDropPreviewList(ID2D1DeviceContext* ctx,
             std::max(1, landing.span.rows)
         };
         RECT targetRect = GetGridRect(gridPages_, landing.cell, span);
-        DrawD2DRoundedRectangle(ctx, targetRect, 6.0f,
+        // Apple HIG: 使用 sm 圆角 (8px) 替代硬编码 6.0f
+        DrawD2DRoundedRectangle(ctx, targetRect, kRadius.sm,
             D2D1::ColorF(0.39f, 0.66f, 1.0f, 0.12f),
             D2D1::ColorF(0.39f, 0.66f, 1.0f, 0.50f), 2.0f);
     }

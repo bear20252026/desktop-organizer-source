@@ -1,4 +1,5 @@
 #include "app.h"
+#include "../design_tokens.h"
 
 // ── 毛玻璃效果管道（Backdrop Effect Pipeline）───────────────────────────────
 //
@@ -7,9 +8,10 @@
 //
 //   管道拓扑（单向流动）：
 //     [1] Capture  注册原生 backdrop（DWM 采样壁纸/背景，或浮窗合成器）
-//     [2] Blur     模糊半径随 PersonalizationSettings.glassBlurRadius 传递
+//     [2] Blur     Apple HIG Liquid Glass 三级模糊（小控件8px/面板20px/大覆盖36px）
 //     [3] Tint     色调填充（玻璃底色）
 //     [4] Noise    亚克力噪点纹理（复用 DrawAcrylicNoise 节点）
+//     [4.5] Sheen  Liquid Glass 流动高光（斜向渐变光带，8秒周期）
 //     [5] Compose  描边合成（液态玻璃边缘优先，退化到普通圆角描边）
 //
 // DrawWidgetPanelBackground 是本管道的薄封装，行为与旧实现保持一致。
@@ -60,19 +62,39 @@ void DesktopApp::DrawBackdropEffectPanel(
 
     D2D1_ROUNDED_RECT rr = D2D1::RoundedRect(ToD2DRect(frame), radius, radius);
 
+    // Apple HIG 同心圆角：内层元素的圆角 = 外层圆角 - 内边距
+    // 保证圆角曲线自然衔接，不会出现尖角或不连续。
+    const float insetRadius = std::max(0.0f, radius - strokeWidth);
+
     // [1] Capture — 原生毛玻璃由下层 CompositionBackdropBrush 提供，本层只
     //     负责把面板矩形注册给对应合成器（桌面或浮窗）。
+    // [2] Blur — Apple HIG Liquid Glass 三级模糊：
+    //     小控件 (按钮/芯片) = 8px, 标准面板 = 20px, 大覆盖层 = 36px。
+    //     按面板尺寸自动选择合适的模糊级别，而非使用单一 glassBlurRadius。
     if (p.glassEnabled && registerBackdrop)
     {
+        using namespace snowdesktop::design_tokens;
+        const auto& glass = GetGlass();
+        // 根据面板面积自动选择模糊级别：小面板用 blurSmall，大面板用 blurLarge
+        const int panelPixels = (frame.right - frame.left) * (frame.bottom - frame.top);
+        float effectiveBlur = (panelPixels < 40000)
+            ? glass.blurSmall   // 8px — 小控件（按钮、芯片）
+            : (panelPixels < 200000)
+                ? glass.blurMedium  // 20px — 标准面板
+                : glass.blurLarge;  // 36px — 大覆盖层
+        // 用户自定义 glassBlurRadius 作为缩放因子（默认 20 对应 blurMedium）
+        if (p.glassBlurRadius > 0.0f)
+            effectiveBlur *= (p.glassBlurRadius / 20.0f);
+
         if (renderingFloatingDock_)
             floatingDockBackdropCompositor_.AddPanel(
                 snowdesktop::floating_dock_rules::
                     DesktopRectToWindowRect(
                         frame, floatingDockSourceRect_),
-                radius, p.glassBlurRadius);
+                radius, effectiveBlur);
         else
             desktopBackdropCompositor_.AddPanel(
-                frame, radius, p.glassBlurRadius);
+                frame, radius, effectiveBlur);
     }
 
     // [3] Tint — 色调填充（玻璃底色）。

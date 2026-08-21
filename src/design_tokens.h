@@ -306,4 +306,72 @@ inline float GetLightIntensity(bool active, bool focused)
     return kGlass.lightIntensityMedium;
 }
 
+// ── 可访问性自适应（Windows 无障碍设置检测）─────────────────────
+// Apple HIG：当用户开启"减少透明度""增强对比""减少动画"时，
+// 系统自动切换材质、颜色和动画行为。设计令牌需感知这些设置。
+
+/** @brief 刷新全局可访问性令牌（从 Windows 系统设置读取）。 */
+inline void RefreshAccessibilityTokens()
+{
+    // 减少透明度 → 玻璃变为不透明磨砂
+    // Windows 10/11: 注册表 HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize
+    {
+        HKEY hKey{};
+        if (RegOpenKeyExW(HKEY_CURRENT_USER,
+                L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+                0, KEY_READ, &hKey) == ERROR_SUCCESS)
+        {
+            DWORD value = 1; // 默认启用透明
+            DWORD size = sizeof(value);
+            RegQueryValueExW(hKey, L"EnableTransparency", nullptr,
+                nullptr, reinterpret_cast<LPBYTE>(&value), &size);
+            gAccessibility.reducedTransparency = (value == 0);
+            RegCloseKey(hKey);
+        }
+    }
+
+    // 增强对比 → 元素变黑白+锐边框
+    BOOL highContrast = FALSE;
+    HIGHCONTRAST hc{};
+    hc.cbSize = sizeof(hc);
+    if (SystemParametersInfoW(SPI_GETHIGHCONTRAST, sizeof(hc), &hc, 0))
+        highContrast = (hc.dwFlags & HCF_HIGHCONTRASTON) != 0;
+    gAccessibility.increasedContrast = highContrast != FALSE;
+
+    // 减少动画 → 过渡变为线性
+    BOOL reduceMotion = FALSE;
+    SystemParametersInfoW(SPI_GETCLIENTAREAANIMATION, 0, &reduceMotion, 0);
+    gAccessibility.reducedMotion = reduceMotion == FALSE;
+}
+
+/** @brief 获取当前有效的模糊半径（考虑可访问性设置）。 */
+inline float GetEffectiveBlurRadius(float baseRadius)
+{
+    // Apple HIG: 减少透明度时模糊半径增大（磨砂效果更重）
+    if (gAccessibility.reducedTransparency)
+        return baseRadius * 2.0f;
+    return baseRadius;
+}
+
+/** @brief 获取当前有效的透明度（考虑可访问性设置）。 */
+inline float GetEffectiveAlpha(float baseAlpha)
+{
+    // Apple HIG: 减少透明度时透明度趋近 1.0
+    if (gAccessibility.reducedTransparency)
+        return std::clamp(baseAlpha + 0.3f, 0.0f, 1.0f);
+    // Apple HIG: 增强对比时透明度完全不透明
+    if (gAccessibility.increasedContrast)
+        return 1.0f;
+    return baseAlpha;
+}
+
+/** @brief 获取当前有效的动画时长（考虑可访问性设置）。 */
+inline float GetEffectiveAnimationDuration(float baseDurationMs)
+{
+    // Apple HIG: 减少动画时过渡变为线性且更快
+    if (gAccessibility.reducedMotion)
+        return std::min(baseDurationMs, 100.0f);
+    return baseDurationMs;
+}
+
 } // namespace snowdesktop::design_tokens

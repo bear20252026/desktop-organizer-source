@@ -1,5 +1,6 @@
 #include "app.h"
 #include "dock_platform_helpers.h"
+#include "../design_tokens.h"
 
 // Desktop host lifecycle.
 
@@ -743,6 +744,9 @@ void DesktopApp::RecoverDesktopHostAfterExplorerRestart()
 
     // 创建 macOS 风格顶部菜单栏（时钟 + 电池 + WiFi + 音量）
     CreateMenuBarWindow();
+
+    // Apple HIG: 刷新可访问性令牌（减少透明度/增强对比/减少动画）
+    snowdesktop::design_tokens::RefreshAccessibilityTokens();
 }
 
 /**
