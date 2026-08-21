@@ -183,6 +183,7 @@ void DesktopApp::ResetDesktopWindowResources()
 
     DestroyDragHintWindow();
     DestroyFloatingDockWindow();
+    DestroyMenuBarWindow();
     DestroyQuickNavigationWindow();
     if (inputHwnd_ && IsWindow(inputHwnd_))
         DestroyWindow(inputHwnd_);
@@ -739,6 +740,9 @@ void DesktopApp::RecoverDesktopHostAfterExplorerRestart()
         ReloadItems(false);
     else if (hwnd_)
         InvalidateRect(hwnd_, nullptr, TRUE);
+
+    // 创建 macOS 风格顶部菜单栏（时钟 + 电池 + WiFi + 音量）
+    CreateMenuBarWindow();
 }
 
 /**
