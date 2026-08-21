@@ -648,6 +648,17 @@ private:
      */
     void UpdateDesktopMicaBackdrop();
 
+    /**
+     * @brief 统一 Liquid Glass 表面入口（L4 管道的便捷封装）。
+     *
+     * 任何需要 Liquid Glass 材质的表面都可以通过调用此函数获得完整材质
+     * （Capture→Blur→Tint→Noise→Sheen→Refraction→Compose），
+     * 无需手动拼装六个节点——这是"模块化管道连接"的统一入口。
+     */
+    void DrawLiquidGlassSurface(
+        ID2D1DeviceContext* ctx, RECT frame, float cornerRadius,
+        bool selected = false);
+
     // ── 动态壁纸（macOS Sonoma 风格时间驱动壁纸轮换）─────────────────
     void UpdateDynamicWallpaper();
     void SetDynamicWallpaperTheme(const std::wstring& themePath);

@@ -269,3 +269,51 @@ void DesktopApp::UpdateDesktopMicaBackdrop()
         client, 0.0f,
         std::max(16.0f, p.glassBlurRadius * kMicaBlurScale));
 }
+
+// ── 统一 Liquid Glass 表面入口（L4 管道的便捷封装）────────────────────────
+//
+// 任何需要 Liquid Glass 材质的表面（Dock 面板/Widget 面板/设置页面）都可以
+// 通过调用此函数获得完整材质（Capture→Blur→Tint→Noise→Sheen→Refraction→Compose），
+// 无需手动拼装六个节点——这是"模块化管道连接"的统一入口。
+//
+// 用法示例：
+//   DrawLiquidGlassSurface(ctx, myRect, cornerRadius, false);
+//   // → 自动读取 PersonalizationSettings，走完整 Liquid Glass 管道
+//
+// @param ctx D2D1 设备上下文
+// @param frame 表面矩形（屏幕坐标）
+// @param cornerRadius 圆角半径（Apple HIG：md=11px 卡片，sm=8px 按钮）
+// @param selected 是否选中态（选中时用强调色描边）
+void DesktopApp::DrawLiquidGlassSurface(
+    ID2D1DeviceContext* ctx, RECT frame, float cornerRadius, bool selected)
+{
+    if (!ctx || IsRectEmptyRect(frame))
+        return;
+
+    // 读取当前主题设置
+    const PersonalizationSettings p = settingsWindow_
+        ? settingsWindow_->GetPersonalization()
+        : PersonalizationSettings::DarkPreset();
+
+    // 从设计令牌获取当前主题的颜色
+    using namespace snowdesktop::design_tokens;
+    const auto& colors = GetColorTokens();
+
+    // Apple HIG: 玻璃面板底色（半透明深灰，与 Liquid Glass 材质一致）
+    const D2D1_COLOR_F fillColor = D2D1::ColorF(
+        p.widgetBgR, p.widgetBgG, p.widgetBgB, p.widgetAlpha);
+
+    // Apple HIG: 玻璃边框（极低不透明度白色，毛玻璃边框几乎不可见）
+    const D2D1_COLOR_F borderColor = D2D1::ColorF(
+        p.widgetBorderR, p.widgetBorderG, p.widgetBorderB, p.widgetBorderAlpha);
+
+    // 调用完整 Liquid Glass 管道（6 节点）
+    DrawBackdropEffectPanel(
+        ctx, frame, cornerRadius,
+        fillColor, borderColor,
+        selected,
+        1.0f,  // strokeWidth
+        &p,    // effectSettings
+        true   // registerBackdrop（注册原生 backdrop 采样）
+    );
+}
