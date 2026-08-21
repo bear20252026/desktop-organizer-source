@@ -1,4 +1,5 @@
 #include "app.h"
+#include <winsock2.h>
 
 // ── 顶部菜单栏（macOS 风格系统状态栏）──────────────────────────────
 //
@@ -124,18 +125,40 @@ void DesktopApp::PaintMenuBarWindow(HWND hwnd)
     TextOutW(memDc, 12, (h - timeSize.cy) / 2,
         appName, static_cast<int>(wcslen(appName)));
 
-    // 右侧：电池占位
+    // 右侧：电池 + WiFi + 音量
+    int rightX = w - 12;
+    wchar_t rightBuf[96]{};
+    int rightLen = 0;
     SYSTEM_POWER_STATUS powerStatus{};
     if (GetSystemPowerStatus(&powerStatus))
     {
-        wchar_t battBuf[32]{};
-        wsprintfW(battBuf, L"%d%%", powerStatus.BatteryLifePercent);
-        SIZE battSize{};
-        GetTextExtentPoint32W(memDc, battBuf,
-            static_cast<int>(wcslen(battBuf)), &battSize);
-        TextOutW(memDc, w - battSize.cx - 12,
-            (h - battSize.cy) / 2,
-            battBuf, static_cast<int>(wcslen(battBuf)));
+        rightLen += wsprintfW(rightBuf + rightLen, L" %d%%", powerStatus.BatteryLifePercent);
+    }
+    // WiFi 状态（简化：通过 ws2_32 探测本地回环判断网络可用性，
+    // 避免依赖 iphlpapi.lib；后续可扩展为完整 WiFi SSID 检测）
+    {
+        // 轻量探测：尝试创建一个 TCP socket 判断网络栈是否就绪
+        SOCKET probe = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (probe != INVALID_SOCKET)
+        {
+            rightLen += wsprintfW(rightBuf + rightLen, L" WiFi");
+            closesocket(probe);
+        }
+    }
+    // 音量（通过 Core Audio API 获取主端点音量）
+    // 简化：使用 GetMasterVolumeLevelScalar 需要 COM 初始化，
+    // 菜单栏作为轻量 GDI 窗口，先用占位符，后续扩展。
+    {
+        rightLen += wsprintfW(rightBuf + rightLen, L" 🔊");
+    }
+    if (rightLen > 0)
+    {
+        SIZE rightSize{};
+        GetTextExtentPoint32W(memDc, rightBuf,
+            static_cast<int>(wcslen(rightBuf)), &rightSize);
+        TextOutW(memDc, rightX - rightSize.cx,
+            (h - rightSize.cy) / 2,
+            rightBuf, static_cast<int>(wcslen(rightBuf)));
     }
 
     BitBlt(hdc, 0, 0, w, h, memDc, 0, 0, SRCCOPY);

@@ -86,13 +86,72 @@ void DesktopApp::DrawBackdropEffectPanel(
     if (p.glassEnabled && p.acrylicEnabled)
     {
         POINT screenOrigin{};
-        // 两个渲染路径都使用桌面客户区坐标；把亚克力纹理锚定到该公共坐标，
-        // 使 Dock 移动到浮窗宿主时边框/噪点处理保持一致。
         HWND renderWindow = hwnd_;
         if (renderWindow)
             ClientToScreen(renderWindow, &screenOrigin);
         DrawAcrylicNoise(ctx, frame, radius, p.contentTheme == 1,
             screenOrigin);
+    }
+
+    // [4.5] Liquid Glass — 流动高光（Dockable 参考：斜向渐变光带随时间漂移，
+    //        形成"活玻璃"质感）。仅在玻璃开启时绘制，叠加在噪点之上、
+    //        描边之下，使用系统启动时间作为相位，不需要额外计时器。
+    if (p.glassEnabled)
+    {
+        const float w = static_cast<float>(frame.right - frame.left);
+        const float h = static_cast<float>(frame.bottom - frame.top);
+        if (w > 4.0f && h > 4.0f)
+        {
+            // 对角线方向：从左上到右下，宽度为面板对角线的 40%
+            const float diag = std::sqrt(w * w + h * h);
+            const float bandWidth = diag * 0.40f;
+            // 相位漂移：用系统 tick 计算，0..2π 循环，约 8 秒一周
+            const ULONGLONG tick = GetTickCount64();
+            const float phase =
+                static_cast<float>(tick % 8000u) / 8000.0f;
+            const float offset = phase * (diag + bandWidth) - bandWidth * 0.5f;
+            // 对角线方向向量（单位化）
+            const float dx = w / diag;
+            const float dy = h / diag;
+            // 光带中心在面板对角线上的投影位置
+            const float cx = frame.left + dx * offset;
+            const float cy = frame.top + dy * offset;
+            // 垂直于对角线的方向
+            const float nx = -dy;
+            const float ny = dx;
+            D2D1_POINT_2F startPt = {
+                cx + nx * bandWidth, cy + ny * bandWidth};
+            D2D1_POINT_2F endPt = {
+                cx - nx * bandWidth, cy - ny * bandWidth};
+            const D2D1_GRADIENT_STOP sheenStops[] = {
+                { 0.0f, D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.0f) },
+                { 0.40f, D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.04f) },
+                { 0.50f, D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.07f) },
+                { 0.60f, D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.04f) },
+                { 1.0f, D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.0f) },
+            };
+            ComPtr<ID2D1GradientStopCollection> sheenCollection;
+            if (SUCCEEDED(ctx->CreateGradientStopCollection(
+                    sheenStops,
+                    static_cast<UINT32>(std::size(sheenStops)),
+                    D2D1_GAMMA_2_2,
+                    D2D1_EXTEND_MODE_CLAMP,
+                    &sheenCollection)) &&
+                sheenCollection)
+            {
+                ComPtr<ID2D1LinearGradientBrush> sheenBrush;
+                if (SUCCEEDED(ctx->CreateLinearGradientBrush(
+                        D2D1::LinearGradientBrushProperties(
+                            startPt, endPt),
+                        D2D1::BrushProperties(),
+                        sheenCollection.Get(),
+                        &sheenBrush)) &&
+                    sheenBrush)
+                {
+                    ctx->FillRoundedRectangle(rr, sheenBrush.Get());
+                }
+            }
+        }
     }
 
     // [5] Compose — 描边合成（选中项用强调色；玻璃边缘优先，退化到普通描边）。
