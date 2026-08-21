@@ -86,6 +86,11 @@ void DesktopApp::OnPaint(const RECT* updateRect)
         }
         desktopBackdropCompositor_.BeginFrame(completeGlassCollection);
 
+        // Desktop-level Mica (macOS frosted-wallpaper layer). Registered after
+        // BeginFrame so the full-client-area panel is collected with the same
+        // frame; no-op unless micaEnabled && glassEnabled.
+        UpdateDesktopMicaBackdrop();
+
         if (!desktopIconsHidden_ || HasRetainedElements())
             RenderFrame(
                 context.Get(),

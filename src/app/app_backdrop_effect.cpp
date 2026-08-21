@@ -110,3 +110,24 @@ void DesktopApp::DrawBackdropEffectPanel(
         }
     }
 }
+
+void DesktopApp::UpdateDesktopMicaBackdrop()
+{
+    // Desktop-level Mica: when enabled, register one full-client-area panel on
+    // the native backdrop compositor so the whole desktop gets a macOS-style
+    // frosted-wallpaper layer. Panels for individual widgets/dock are still
+    // added by DrawBackdropEffectPanel as usual; this one sits behind them.
+    PersonalizationSettings p = settingsWindow_
+        ? settingsWindow_->GetPersonalization()
+        : PersonalizationSettings::DarkPreset();
+    if (!p.glassEnabled || !p.micaEnabled)
+        return;
+
+    RECT client{};
+    if (!GetClientRect(hwnd_, &client) || IsRectEmpty(&client))
+        return;
+    constexpr float kMicaBlurScale = 2.5f;
+    desktopBackdropCompositor_.AddPanel(
+        client, 0.0f,
+        std::max(16.0f, p.glassBlurRadius * kMicaBlurScale));
+}

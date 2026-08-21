@@ -1550,14 +1550,16 @@ int main()
             magnification::ScaleForAxisDistance(0, 76) -
             magnification::kFocusScale) < 0.001f,
         "the focused Dock element must receive the maximum scale");
+    // Raised-cosine curve: at one item pitch the scale is 1.21f
+    // (1 + 0.28 * (1+cos(pi/3))/2) and at two pitches 1.07f.
     Check(std::abs(
             magnification::ScaleForAxisDistance(76, 76) -
-            magnification::kFirstNeighborScale) < 0.001f,
-        "the first Dock neighbor must receive the medium scale");
+            1.21f) < 0.001f,
+        "the first Dock neighbor must receive the continuous-curve scale");
     Check(std::abs(
             magnification::ScaleForAxisDistance(152, 76) -
-            magnification::kSecondNeighborScale) < 0.001f,
-        "the second Dock neighbor must receive the subtle scale");
+            1.07f) < 0.001f,
+        "the second Dock neighbor must receive the continuous-curve scale");
     Check(magnification::ScaleForAxisDistance(228, 76) == 1.0f,
         "distant Dock elements must retain their normal scale");
     Check(magnification::FocusSwitchHysteresisPixels(76) == 4 &&
@@ -1592,7 +1594,7 @@ int main()
             quarterScale > halfScale &&
             halfScale > threeQuarterScale &&
             threeQuarterScale >
-                magnification::kFirstNeighborScale,
+                magnification::ScaleForAxisDistance(76, 76),
         "Dock magnification must vary continuously inside each icon pitch");
     Check(magnification::AxisShiftForDistance(19, 76, 64) <
             magnification::AxisShiftForDistance(38, 76, 64) &&
@@ -1615,8 +1617,8 @@ int main()
 
     const std::vector<float> leadingZoneScales{
         magnification::kFocusScale,
-        magnification::kFirstNeighborScale,
-        magnification::kSecondNeighborScale,
+        1.21f,   // continuous raised-cosine value at one pitch
+        1.07f,   // continuous raised-cosine value at two pitches
         1.0f
     };
     const int leadingFocusShift =
@@ -1678,7 +1680,7 @@ int main()
     const RECT neighborDockElement{ 176, 200, 252, 288 };
     const RECT shiftedNeighbor = magnification::MagnifyRect(
         neighborDockElement, DockPosition::Bottom,
-        magnification::kFirstNeighborScale, 64, firstNeighborShift);
+        1.21f, 64, firstNeighborShift);
     Check(shiftedNeighbor.left >= bottomMagnified.right,
         "neighbor displacement must preserve spacing beside the magnified focus");
 
@@ -1696,7 +1698,7 @@ int main()
         "edge-attached leading zone must keep icon spacing while packing inward");
 
     const std::vector<float> trailingZoneScales{
-        magnification::kFirstNeighborScale,
+        1.21f,   // continuous raised-cosine value at one pitch
         magnification::kFocusScale
     };
     const int trailingInnerShift =

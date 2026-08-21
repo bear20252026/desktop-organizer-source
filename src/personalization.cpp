@@ -316,6 +316,8 @@ bool LoadPersonalization(
     if (ReadDoubleField(text, "contentTheme", v)) s.contentTheme = std::clamp(static_cast<int>(v), 0, 1);
     bool b2 = false;
     if (ReadBoolField(text, "acrylicEnabled", b2)) s.acrylicEnabled = b2;
+    bool b3 = false;
+    if (ReadBoolField(text, "micaEnabled", b3)) s.micaEnabled = b3;
     // Presets are immutable choices in the UI. Refresh persisted acrylic
     // values so palette refinements and the old placeholder migration are
     // applied without requiring users to reselect the theme.
@@ -375,7 +377,8 @@ bool SavePersonalization(const wchar_t* path, const PersonalizationSettings& s)
     file << "  \"glassEnabled\": " << (s.glassEnabled ? "true" : "false") << ",\n";
     file << "  \"glassBlurRadius\": " << s.glassBlurRadius << ",\n";
     file << "  \"contentTheme\": " << s.contentTheme << ",\n";
-    file << "  \"acrylicEnabled\": " << (s.acrylicEnabled ? "true" : "false") << "\n";
+    file << "  \"acrylicEnabled\": " << (s.acrylicEnabled ? "true" : "false") << ",\n";
+    file << "  \"micaEnabled\": " << (s.micaEnabled ? "true" : "false") << "\n";
     file << "}\n";
     return true;
 }

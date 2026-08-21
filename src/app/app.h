@@ -640,6 +640,13 @@ private:
         D2D1_COLOR_F fill, D2D1_COLOR_F border, bool selected, float strokeWidth,
         const PersonalizationSettings* effectSettings = nullptr,
         bool registerBackdrop = true);
+    /**
+     * @brief 桌面级 Mica 背景面板（app_backdrop_effect.cpp）。
+     *
+     * 当 micaEnabled 时，在桌面 backdrop 合成器上注册覆盖整个客户区的
+     * 全屏壁纸模糊面板，呈现 macOS 桌面质感。默认关闭，不影响现有行为。
+     */
+    void UpdateDesktopMicaBackdrop();
     /** @brief 在圆角区域内绘制稳定平铺的低透明亚克力颗粒。 */
     void DrawAcrylicNoise(ID2D1DeviceContext* ctx, RECT frame, float radius,
         bool lightTheme, POINT screenOrigin);

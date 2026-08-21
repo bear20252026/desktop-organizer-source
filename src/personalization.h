@@ -108,6 +108,14 @@ struct PersonalizationSettings
     bool acrylicEnabled = false;
 
     /**
+     * @brief 桌面级 Mica 背景开关（macOS 桌面质感）
+     * @details 开启后由 L4 特效管道（app_backdrop_effect.cpp）在桌面背景层
+     *          绘制壁纸采样 → 高斯模糊 → 色调 → 噪点的 Mica 效果，使桌面
+     *          呈现 macOS 风格的毛玻璃壁纸。独立于组件级毛玻璃，默认关闭。
+     */
+    bool micaEnabled = false;
+
+    /**
      * @brief 文字颜色主题 (0=浅色/白字, 1=深色/黑字)
      * @details 影响任务栏文字图标、Dock组件标题和右下角图标、Lua组件文字颜色。
      *          默认浅色（白字），与现有主题预设一致。
