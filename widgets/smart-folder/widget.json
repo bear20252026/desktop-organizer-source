@@ -184,6 +184,25 @@
       "lua_widget.smart_folder.videos": "Vídeos",
       "lua_widget.smart_folder.audio": "Áudio",
       "lua_widget.smart_folder.archives": "Arquivos"
+    },
+    "es-419": {
+      "lua_widget.smart_folder.name": "Carpeta inteligente",
+      "lua_widget.smart_folder.description": "Carpetas inteligentes estilo macOS：consultas guardadas con actualización automática.",
+      "lua_widget.smart_folder.search_placeholder": "Escriba palabras clave...",
+      "lua_widget.smart_folder.no_results": "No hay archivos coincidentes",
+      "lua_widget.smart_folder.results_count": "resultados",
+      "lua_widget.smart_folder.save_query": "Guardar consulta",
+      "lua_widget.smart_folder.saved_queries": "Consultas guardadas",
+      "lua_widget.smart_folder.delete_query": "Eliminar consulta",
+      "lua_widget.smart_folder.open_file": "Abrir archivo",
+      "lua_widget.smart_folder.reveal_file": "Mostrar en explorador",
+      "lua_widget.smart_folder.filter_type": "Tipo de archivo",
+      "lua_widget.smart_folder.all_types": "Todos los tipos",
+      "lua_widget.smart_folder.images": "Imágenes",
+      "lua_widget.smart_folder.documents": "Documentos",
+      "lua_widget.smart_folder.videos": "Vídeos",
+      "lua_widget.smart_folder.audio": "Audio",
+      "lua_widget.smart_folder.archives": "Archivos"
     }
   },
   "defaultSize": {

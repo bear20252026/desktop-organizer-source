@@ -193,6 +193,26 @@
       "lua_widget.folder_tags.no_tag": "Sem tag",
       "lua_widget.folder_tags.apply": "Aplicar",
       "lua_widget.folder_tags.remove": "Remover"
+    },
+    "es-419": {
+      "lua_widget.folder_tags.name": "Etiquetas de carpeta",
+      "lua_widget.folder_tags.description": "Etiquetas de color y símbolos de carpeta estilo macOS.",
+      "lua_widget.folder_tags.red": "Rojo",
+      "lua_widget.folder_tags.orange": "Naranja",
+      "lua_widget.folder_tags.yellow": "Amarillo",
+      "lua_widget.folder_tags.green": "Verde",
+      "lua_widget.folder_tags.blue": "Azul",
+      "lua_widget.folder_tags.purple": "Púrpura",
+      "lua_widget.folder_tags.gray": "Gris",
+      "lua_widget.folder_tags.work": "Trabajo",
+      "lua_widget.folder_tags.personal": "Personal",
+      "lua_widget.folder_tags.urgent": "Urgente",
+      "lua_widget.folder_tags.important": "Importante",
+      "lua_widget.folder_tags.archive": "Archivo",
+      "lua_widget.folder_tags.project": "Proyecto",
+      "lua_widget.folder_tags.no_tag": "Sin etiqueta",
+      "lua_widget.folder_tags.apply": "Aplicar",
+      "lua_widget.folder_tags.remove": "Eliminar"
     }
   },
   "defaultSize": {

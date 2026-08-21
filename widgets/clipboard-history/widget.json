@@ -157,6 +157,22 @@
       "lua_widget.clipboard_history.ago_minutes": "min",
       "lua_widget.clipboard_history.ago_hours": "h",
       "lua_widget.clipboard_history.items_count": " itens"
+    },
+    "es-419": {
+      "lua_widget.clipboard_history.name": "Historial del portapapeles",
+      "lua_widget.clipboard_history.description": "Historial del portapapeles estilo macOS Tahoe, 8 horas de retención.",
+      "lua_widget.clipboard_history.empty": "Sin historial",
+      "lua_widget.clipboard_history.paste": "Pegar",
+      "lua_widget.clipboard_history.copy": "Copiar",
+      "lua_widget.clipboard_history.delete": "Eliminar",
+      "lua_widget.clipboard_history.clear_all": "Borrar todo",
+      "lua_widget.clipboard_history.text": "Texto",
+      "lua_widget.clipboard_history.file": "Archivo",
+      "lua_widget.clipboard_history.image": "Imagen",
+      "lua_widget.clipboard_history.ago_seconds": "seg",
+      "lua_widget.clipboard_history.ago_minutes": "min",
+      "lua_widget.clipboard_history.ago_hours": "h",
+      "lua_widget.clipboard_history.items_count": " elementos"
     }
   },
   "defaultSize": {

@@ -238,6 +238,31 @@
       "lua_widget.stacks.older": "Mais antigo",
       "lua_widget.stacks.show_count": "Mostrar contagem",
       "lua_widget.stacks.group_by": "Agrupar por"
+    },
+    "es-419": {
+      "lua_widget.stacks.name": "Pilas de archivos",
+      "lua_widget.stacks.description": "Agrupar archivos del escritorio automáticamente por tipo, estilo macOS.",
+      "lua_widget.stacks.group_type": "Por tipo",
+      "lua_widget.stacks.group_date": "Por fecha",
+      "lua_widget.stacks.group_ext": "Por extensión",
+      "lua_widget.stacks.expand": "Expandir",
+      "lua_widget.stacks.collapse": "Contraer",
+      "lua_widget.stacks.open_all": "Abrir todo",
+      "lua_widget.stacks.empty": "El escritorio está vacío",
+      "lua_widget.stacks.images": "Imágenes",
+      "lua_widget.stacks.documents": "Documentos",
+      "lua_widget.stacks.videos": "Vídeos",
+      "lua_widget.stacks.audio": "Audio",
+      "lua_widget.stacks.archives": "Archivos",
+      "lua_widget.stacks.shortcuts": "Accesos directos",
+      "lua_widget.stacks.other": "Otros",
+      "lua_widget.stacks.today": "Hoy",
+      "lua_widget.stacks.yesterday": "Ayer",
+      "lua_widget.stacks.this_week": "Esta semana",
+      "lua_widget.stacks.this_month": "Este mes",
+      "lua_widget.stacks.older": "Más antiguo",
+      "lua_widget.stacks.show_count": "Mostrar cantidad",
+      "lua_widget.stacks.group_by": "Agrupar por"
     }
   },
   "defaultSize": {
