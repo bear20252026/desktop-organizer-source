@@ -134,15 +134,19 @@ void DesktopApp::PaintMenuBarWindow(HWND hwnd)
     {
         rightLen += wsprintfW(rightBuf + rightLen, L" %d%%", powerStatus.BatteryLifePercent);
     }
-    // WiFi 状态（简化：通过 ws2_32 探测本地回环判断网络可用性，
-    // 避免依赖 iphlpapi.lib；后续可扩展为完整 WiFi SSID 检测）
+    // WiFi 状态（通过 wininet.dll 动态加载 InternetGetConnectedState
+    // 检测系统级网络连接状态，无链接依赖；比 socket 探测更准确）
     {
-        // 轻量探测：尝试创建一个 TCP socket 判断网络栈是否就绪
-        SOCKET probe = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-        if (probe != INVALID_SOCKET)
+        static const HMODULE hWininet = LoadLibraryW(L"wininet.dll");
+        typedef BOOL (WINAPI *FnInternetGetConnectedState)(LPDWORD, DWORD);
+        static const auto pInternetGetConnectedState =
+            hWininet ? reinterpret_cast<FnInternetGetConnectedState>(
+                GetProcAddress(hWininet, "InternetGetConnectedState"))
+            : nullptr;
+        DWORD flags = 0;
+        if (pInternetGetConnectedState && pInternetGetConnectedState(&flags, 0))
         {
             rightLen += wsprintfW(rightBuf + rightLen, L" WiFi");
-            closesocket(probe);
         }
     }
     // 音量（通过 Core Audio API 获取主端点音量）
