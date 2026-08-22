@@ -830,5 +830,7 @@
   "workshop_manager.check_eula": "워크샵 계약 확인",
   "workshop_manager.eula_accepted": "워크샵 계약 승인",
   "workshop_manager.eula_action": "창작마당 계약에 Steam에서 조치가 필요합니다",
-  "calendar.notification_title": "일정 알림"
+  "calendar.notification_title": "일정 알림",
+  "app.settings.hide_desktop_icons": "바탕화면 아이콘 숨기기 (권장하지 않음)",
+  "app.settings.mica_enabled": "Mica 프로스트 글래스"
 }

@@ -830,5 +830,7 @@
   "workshop_manager.check_eula": "Überprüfen Sie die Werkstattvereinbarung",
   "workshop_manager.eula_accepted": "Werkstattvereinbarung akzeptiert",
   "workshop_manager.eula_action": "Workshop-Vereinbarung erfordert Maßnahmen auf Steam",
-  "calendar.notification_title": "Terminerinnerung"
+  "calendar.notification_title": "Terminerinnerung",
+  "app.settings.hide_desktop_icons": "Desktop-Symbole verbergen (nicht empfohlen)",
+  "app.settings.mica_enabled": "Mica matter Glas-Effekt"
 }

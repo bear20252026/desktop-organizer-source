@@ -830,5 +830,7 @@
   "workshop_manager.check_eula": "檢查創意工坊協議",
   "workshop_manager.eula_accepted": "創意工坊協議已接受",
   "workshop_manager.eula_action": "需要在 Steam 頁面處理創意工坊協議",
-  "calendar.notification_title": "日程提醒"
+  "calendar.notification_title": "日程提醒",
+  "app.settings.hide_desktop_icons": "隱藏桌面圖示（不推薦）",
+  "app.settings.mica_enabled": "Mica 毛玻璃材質"
 }

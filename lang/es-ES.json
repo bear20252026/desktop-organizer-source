@@ -830,5 +830,7 @@
   "workshop_manager.check_eula": "Consultar acuerdo de taller",
   "workshop_manager.eula_accepted": "Acuerdo de taller aceptado",
   "workshop_manager.eula_action": "El acuerdo de taller requiere acción en Steam",
-  "calendar.notification_title": "Recordatorio de programación"
+  "calendar.notification_title": "Recordatorio de programación",
+  "app.settings.hide_desktop_icons": "Ocultar iconos del escritorio (no recomendado)",
+  "app.settings.mica_enabled": "Efecto cristal esmerilado Mica"
 }

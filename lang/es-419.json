@@ -830,5 +830,7 @@
   "workshop_manager.update_preview": "Actualizar también la vista previa principal",
   "workshop_manager.update_tags": "Actualizar también las etiquetas",
   "workshop_manager.create_upload": "Crear un elemento privado y cargarlo",
-  "workshop_manager.upload_version": "Subir nueva versión"
+  "workshop_manager.upload_version": "Subir nueva versión",
+  "app.settings.hide_desktop_icons": "Ocultar iconos del escritorio (no recomendado)",
+  "app.settings.mica_enabled": "Efecto cristal esmerilado Mica"
 }

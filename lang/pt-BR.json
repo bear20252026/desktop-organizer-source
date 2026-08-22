@@ -830,5 +830,7 @@
   "workshop_manager.check_eula": "Verificar o contrato do Workshop",
   "workshop_manager.eula_accepted": "Contrato do Workshop aceito",
   "workshop_manager.eula_action": "O contrato do Workshop requer uma ação no Steam",
-  "calendar.notification_title": "Lembrete de agendamento"
+  "calendar.notification_title": "Lembrete de agendamento",
+  "app.settings.hide_desktop_icons": "Ocultar icones da area de trabalho (nao recomendado)",
+  "app.settings.mica_enabled": "Efeito vidro fosco Mica"
 }

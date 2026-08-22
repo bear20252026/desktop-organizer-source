@@ -830,5 +830,7 @@
   "workshop_manager.check_eula": "ワークショップ契約を確認する",
   "workshop_manager.eula_accepted": "ワークショップ契約受諾",
   "workshop_manager.eula_action": "ワークショップ契約には Steam でのアクションが必要です",
-  "calendar.notification_title": "スケジュールリマインダー"
+  "calendar.notification_title": "スケジュールリマインダー",
+  "app.settings.hide_desktop_icons": "デスクトップアイコンを非表示（非推奨）",
+  "app.settings.mica_enabled": "Mica すりガラス素材"
 }

@@ -830,5 +830,7 @@
   "workshop_manager.check_eula": "Vérifier l'accord d'atelier",
   "workshop_manager.eula_accepted": "Accord d'atelier accepté",
   "workshop_manager.eula_action": "L'accord d'atelier nécessite une action sur Steam",
-  "calendar.notification_title": "Rappel d'horaire"
+  "calendar.notification_title": "Rappel d'horaire",
+  "app.settings.hide_desktop_icons": "Masquer les icones du bureau (non recommande)",
+  "app.settings.mica_enabled": "Effet verre depoli Mica"
 }
