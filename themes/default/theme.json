@@ -1,0 +1,130 @@
+{
+  "id": "@desktop-organizer/default",
+  "version": "1.0.0",
+  "displayName": {
+    "en-US": "Default Theme",
+    "zh-CN": "默认主题"
+  },
+  "description": {
+    "en-US": "Apple HIG inspired default theme with Liquid Glass materials",
+    "zh-CN": "Apple HIG 风格默认主题，Liquid Glass 材质"
+  },
+  "author": "Desktop Organizer",
+  "license": "GPL-3.0",
+  "tags": ["apple", "liquid-glass", "dark", "light"],
+
+  "colors": {
+    "light": {
+      "primary": "#0066cc",
+      "primary-focus": "#0071e3",
+      "primary-on-dark": "#2997ff",
+      "ink": "#1d1d1f",
+      "canvas": "#ffffff",
+      "canvas-parchment": "#f5f5f7",
+      "surface-pearl": "#fafafc",
+      "surface-tile-1": "#272729",
+      "body-on-dark": "#ffffff",
+      "body-muted": "#cccccc",
+      "divider-soft": "#f0f0f0",
+      "hairline": "#e0e0e0",
+      "status-success": "#03a10e",
+      "status-error": "#e30000",
+      "status-warning": "#f56300"
+    },
+    "dark": {
+      "primary": "#2997ff",
+      "primary-focus": "#2e9fff",
+      "primary-on-dark": "#2997ff",
+      "ink": "#f2f2f2",
+      "canvas": "#1d1d1f",
+      "canvas-parchment": "#272729",
+      "surface-pearl": "#2a2a2c",
+      "surface-tile-1": "#17171a",
+      "body-on-dark": "#f2f2f2",
+      "body-muted": "#8c8c8c",
+      "divider-soft": "#38383a",
+      "hairline": "#4d4d50",
+      "status-success": "#2ed64a",
+      "status-error": "#ff4545",
+      "status-warning": "#ff9500"
+    }
+  },
+
+  "typography": {
+    "hero-display":    { "size": 56, "weight": 600, "lineHeight": 1.07, "letterSpacing": -0.28 },
+    "display-lg":      { "size": 40, "weight": 600, "lineHeight": 1.10, "letterSpacing": 0 },
+    "display-md":      { "size": 34, "weight": 600, "lineHeight": 1.47, "letterSpacing": -0.374 },
+    "lead":            { "size": 28, "weight": 400, "lineHeight": 1.14, "letterSpacing": 0.196 },
+    "body-strong":     { "size": 17, "weight": 600, "lineHeight": 1.24, "letterSpacing": -0.374 },
+    "body":            { "size": 17, "weight": 400, "lineHeight": 1.47, "letterSpacing": -0.374 },
+    "caption":         { "size": 14, "weight": 400, "lineHeight": 1.43, "letterSpacing": -0.224 },
+    "caption-strong":  { "size": 14, "weight": 600, "lineHeight": 1.29, "letterSpacing": -0.224 },
+    "button-large":    { "size": 18, "weight": 300, "lineHeight": 1.0, "letterSpacing": 0 },
+    "button-utility":  { "size": 14, "weight": 400, "lineHeight": 1.29, "letterSpacing": -0.224 },
+    "fine-print":      { "size": 12, "weight": 400, "lineHeight": 1.0, "letterSpacing": -0.12 },
+    "nav-link":        { "size": 12, "weight": 400, "lineHeight": 1.0, "letterSpacing": -0.12 }
+  },
+
+  "rounded": {
+    "none": 0, "xs": 5, "sm": 8, "md": 11, "lg": 18, "pill": 9999
+  },
+
+  "spacing": {
+    "xxs": 4, "xs": 8, "sm": 12, "md": 17, "lg": 24, "xl": 32, "xxl": 48, "section": 80
+  },
+
+  "glass": {
+    "blur-small": 8,
+    "blur-medium": 20,
+    "blur-large": 36,
+    "saturation": 1.4,
+    "light-angle-deg": 35,
+    "light-intensity-low": 0.08,
+    "light-intensity-medium": 0.15,
+    "light-intensity-high": 0.25
+  },
+
+  "motion": {
+    "standard-duration-ms": 300,
+    "spring-mass": 1.0,
+    "spring-stiffness": 100.0,
+    "spring-damping": 15.0
+  },
+
+  "elevation": {
+    "shadow-x": 0, "shadow-y": 3, "shadow-blur": 5, "shadow-spread": 30,
+    "shadow-color": "rgba(0,0,0,0.22)"
+  },
+
+  "accessibility": {
+    "reduce-transparency-blur-multiplier": 2.0,
+    "reduce-transparency-alpha-add": 0.3,
+    "reduce-motion-max-duration-ms": 100
+  },
+
+  "widgets": {
+    "@desktop-organizer/dock": {
+      "position": "bottom-center",
+      "auto-hide": false,
+      "icon-size": 48,
+      "magnification": true,
+      "magnification-range": 128,
+      "magnification-power": 8
+    },
+    "@desktop-organizer/menu-bar": {
+      "position": "top",
+      "height": 28,
+      "mica": true,
+      "transparent": true,
+      "show-clock": true,
+      "show-battery": true,
+      "show-wifi": true,
+      "show-volume": true
+    },
+    "@desktop-organizer/spotlight": {
+      "hotkey": "Ctrl+Space",
+      "blur": 20,
+      "max-results": 20
+    }
+  }
+}

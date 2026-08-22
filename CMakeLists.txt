@@ -89,6 +89,10 @@ set(SNOWDESKTOP_SOURCES
     src/app/app_bitmap_cache.cpp
     src/app/app_backdrop_effect.cpp
     src/desktop_organizer.cpp
+    src/theme_engine.cpp
+    src/resource_pack.cpp
+    src/portal_fence.cpp
+    src/multi_monitor.cpp
     src/app/app_background_menu.cpp
     src/app/app_animation_scheduler.cpp
     src/app/app_clipboard_interaction.cpp

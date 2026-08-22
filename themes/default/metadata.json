@@ -1,0 +1,28 @@
+{
+  "id": "@desktop-organizer/default",
+  "version": "1.0.0",
+  "kind": "Theme",
+  "displayName": {
+    "en-US": "Default Theme",
+    "zh-CN": "默认主题"
+  },
+  "description": {
+    "en-US": "Apple HIG inspired default theme with Liquid Glass materials",
+    "zh-CN": "Apple HIG 风格默认主题，Liquid Glass 材质"
+  },
+  "author": "Desktop Organizer",
+  "license": "GPL-3.0",
+  "tags": ["apple", "liquid-glass", "dark", "light"],
+  "minAppVersion": "1.0.0",
+
+  "files": {
+    "theme": "theme.json",
+    "icon": "icon.png",
+    "preview": "preview.png"
+  },
+
+  "compatibility": {
+    "platforms": ["windows-10", "windows-11"],
+    "architectures": ["x64"]
+  }
+}
