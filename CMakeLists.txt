@@ -94,6 +94,9 @@ set(SNOWDESKTOP_SOURCES
     src/portal_fence.cpp
     src/multi_monitor.cpp
     src/dynamic_accent.cpp
+    src/workspace_profiles.cpp
+    src/smart_rules.cpp
+    src/chameleon_mode.cpp
     src/app/app_background_menu.cpp
     src/app/app_animation_scheduler.cpp
     src/app/app_clipboard_interaction.cpp
