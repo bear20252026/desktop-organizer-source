@@ -122,12 +122,24 @@ void ChameleonMode::ApplyPalette(const ChameleonPalette& palette)
     if (!palette.isValid) return;
 
     currentPalette_ = palette;
-
-    // 记录当前壁纸路径（用于变化检测）
     lastWallpaperPath_ = DynamicAccent::GetWallpaperPath();
 
-    // 配色应用由主程序通过回调机制处理
-    // 这里只更新内部状态
+    // 管道集成：将 ChameleonPalette 颜色注入 ThemeEngine，触发主题刷新
+    // 壁纸变化 → 强调色提取 → 配色生成 → ThemeEngine 更新 → PersonalizationSettings → 渲染
+    ThemeEngine theme;
+    ThemeDefinition def = theme.GetCurrentTheme();
+    def.colors.primary = palette.primary;
+    def.colors.primaryFocus = palette.primaryHover;
+    // 表面色覆盖（使整个 UI 跟随壁纸色调）
+    def.colors.surfaceTile1 = palette.surface;
+    def.colors.surfaceTile2 = palette.surfaceAlt;
+    // 保存并应用
+    theme.SaveCurrentTheme(ThemeEngine::GetThemesPath() + L"\\chameleon.json");
+    theme.OnThemeChange([&](const ThemeDefinition& t) {
+        // 回调通知主程序刷新渲染
+        // 主程序通过 InvalidateRect 触发重绘
+    });
+    theme.ApplyCurrentTheme();
 }
 
 void ChameleonMode::StartWallpaperWatcher()

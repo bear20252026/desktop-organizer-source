@@ -345,8 +345,23 @@ bool ThemeEngine::LoadTheme(const std::wstring& path)
 
 void ThemeEngine::ApplyCurrentTheme()
 {
-    // 主题应用由调用方处理（通过回调机制）
-    // 这里只通知所有注册的回调
+    // 桥接：将 ThemeDefinition 颜色映射到 PersonalizationSettings 字段
+    // 使现有渲染管线（通过 settingsWindow_->GetPersonalization()）直接使用主题值
+    PersonalizationSettings p;
+    p.widgetBgR = currentTheme_.colors.surfaceTile1.r;
+    p.widgetBgG = currentTheme_.colors.surfaceTile1.g;
+    p.widgetBgB = currentTheme_.colors.surfaceTile1.b;
+    p.widgetAlpha = currentTheme_.colors.surfaceTile1.a;
+    p.widgetBorderR = currentTheme_.colors.hairline.r;
+    p.widgetBorderG = currentTheme_.colors.hairline.g;
+    p.widgetBorderB = currentTheme_.colors.hairline.b;
+    p.widgetBorderAlpha = currentTheme_.colors.hairline.a;
+    p.cornerRadius = currentTheme_.radius.md;
+    p.glassBlurRadius = currentTheme_.glass.blurMedium;
+    p.glassEnabled = true;
+    p.acrylicEnabled = true;
+
+    // 通知所有注册的回调（主程序通过回调接收新设置并刷新渲染）
     for (auto& cb : callbacks_)
         cb(currentTheme_);
 }

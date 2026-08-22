@@ -39,6 +39,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <filesystem>
 #include <windows.h>
 
 namespace snowdesktop {
@@ -227,6 +228,30 @@ private:
                       double threshold, double threshold2 = 0.0);
 
     std::vector<SmartRule> rules_;
+
+    // 管道集成：文件变化回调
+    // 主程序的桌面文件监控（Shell change notification）触发时调用，
+    // 规则引擎自动评估并执行匹配规则。
+    // 用法：smartRules.OnFileChange(filePath);
+    bool OnFileChange(const std::wstring& filePath)
+    {
+        RuleMatchResult match = EvaluateFile(filePath);
+        if (!match.matched) return false;
+
+        // 执行动作
+        namespace fs = std::filesystem;
+        if (match.actionType == ActionType::Move && !match.targetPath.empty())
+        {
+            fs::path src(filePath);
+            fs::path destDir = src.parent_path() / match.targetPath;
+            fs::create_directories(destDir);
+            fs::path destFile = destDir / src.filename();
+            std::error_code ec;
+            fs::rename(src, destFile, ec);
+            return !ec;
+        }
+        return false;
+    }
 };
 
 } // namespace snowdesktop
