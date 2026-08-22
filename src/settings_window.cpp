@@ -3072,6 +3072,15 @@ void SettingsWindow::DrawPersonalizationPage()
         markChanged(true);
     ImGui::EndDisabled();
 
+    if (DrawSettingCheckbox(_L("app.settings.mica_enabled"), "##MicaEnabled",
+        &personalization_.micaEnabled))
+        markChanged(true);
+
+    // 安全开关：隐藏桌面图标（默认不隐藏，避免崩溃时桌面"消失"）
+    if (DrawSettingCheckbox(_L("app.settings.hide_desktop_icons"), "##HideDesktopIcons",
+        &personalization_.hideDesktopIcons))
+        markChanged(true);
+
     BeginSettingRow(_L("app.settings.text_color"), controlW);
     const char* contentThemeNames[] = { _L("app.settings.light"), _L("app.settings.dark") };
     int contentTheme = personalization_.contentTheme;
