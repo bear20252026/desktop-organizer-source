@@ -424,7 +424,7 @@ void SmartRuleEngine::CreateDefaultRules()
     // 文档归档：30天以上的文档移到 Archive/Documents
     SmartRule docRule;
     docRule.id = "archive_old_documents";
-    docRule.name = "归档旧文档（30天以上）";
+    docRule.name = "Archive Old Documents (>30 days)";
     docRule.enabled = true;
     docRule.priority = 10;
     docRule.logic = LogicOp::And;
@@ -439,7 +439,7 @@ void SmartRuleEngine::CreateDefaultRules()
     // 安装包清理：7天以上的 exe/msi 移到 Archive/Installers
     SmartRule installerRule;
     installerRule.id = "archive_old_installers";
-    installerRule.name = "归档旧安装包（7天以上）";
+    installerRule.name = "Archive Old Installers (>7 days)";
     installerRule.enabled = true;
     installerRule.priority = 5;
     installerRule.logic = LogicOp::And;
@@ -454,7 +454,7 @@ void SmartRuleEngine::CreateDefaultRules()
     // 大文件警告：大于 500MB 的文件标为注意
     SmartRule largeRule;
     largeRule.id = "large_file_warning";
-    largeRule.name = "大文件标记（>500MB）";
+    largeRule.name = "Large File Tag (>500MB)";
     largeRule.enabled = true;
     largeRule.priority = 1;
     largeRule.logic = LogicOp::And;
