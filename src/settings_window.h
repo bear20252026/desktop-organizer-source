@@ -23,6 +23,7 @@
 #include "full_data_backup.h"
 #include "widget_package.h"
 #include "../widget_spacing_rules.h"
+#include "../desktop_organizer.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -876,6 +877,11 @@ private:
 
     /// 正在编辑的小组件脚本文件路径
     std::wstring editingScriptPath_;
+
+    // 桌面整理相关
+    bool showOrganizePreview_ = false;
+    std::vector<snowdesktop::FileCategory> organizePreview_;
+    snowdesktop::OrganizeResult organizeLastResult_;
 
     /** @} */
 };

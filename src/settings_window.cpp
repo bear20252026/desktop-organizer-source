@@ -25,6 +25,7 @@
 #include "http_runtime.h"
 #include "portable_data_migration.h"
 #include "../design_tokens.h"
+#include "../desktop_organizer.h"
 
 #include <dwmapi.h>
 
@@ -2211,6 +2212,69 @@ void SettingsWindow::DrawGeneralPage()
     if (DrawSettingCheckbox(_L("app.settings.double_click_hide"), "##DoubleClickHideDesktop",
         &generalSettings_.doubleClickHideDesktop))
         generalSettingsDirty_ = true;
+
+    ImGui::Spacing();
+
+    // ── 桌面整理（真整理，不是假覆盖）─────────────────────────
+    ImGui::SeparatorText(_L("app.settings.desktop_organize"));
+    ImGui::Spacing();
+
+    ImGui::TextWrapped("%s", _L("app.settings.desktop_organize_desc"));
+    ImGui::Spacing();
+
+    if (ImGui::Button(_L("app.settings.desktop_organize_preview"), ImVec2(0, 0)))
+    {
+        snowdesktop::DesktopOrganizer organizer;
+        auto categories = organizer.PreviewOrganize();
+        organizePreview_ = categories;
+        showOrganizePreview_ = true;
+    }
+
+    if (showOrganizePreview_ && !organizePreview_.empty())
+    {
+        ImGui::Spacing();
+        ImGui::SeparatorText(_L("app.settings.organize_preview"));
+        for (const auto& cat : organizePreview_)
+        {
+            ImGui::BulletText("%s: %d files",
+                WideToUtf8(cat.name).c_str(), cat.fileCount);
+        }
+        ImGui::Spacing();
+
+        if (ImGui::Button(_L("app.settings.desktop_organize_execute"), ImVec2(0, 0)))
+        {
+            snowdesktop::DesktopOrganizer organizer;
+            auto result = organizer.Organize();
+            organizeLastResult_ = result;
+            showOrganizePreview_ = false;
+            organizePreview_.clear();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(_L("app.settings.desktop_organize_cancel"), ImVec2(0, 0)))
+        {
+            showOrganizePreview_ = false;
+            organizePreview_.clear();
+        }
+    }
+
+    if (organizeLastResult_.movedFiles > 0)
+    {
+        ImGui::Spacing();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.18f, 0.84f, 0.29f, 1.0f));
+        ImGui::TextWrapped("%s",
+            _LF("app.settings.organize_result",
+                std::to_string(organizeLastResult_.movedFiles),
+                std::to_string(organizeLastResult_.createdFolders)));
+        ImGui::PopStyleColor();
+
+        if (ImGui::Button(_L("app.settings.desktop_organize_undo"), ImVec2(0, 0)))
+        {
+            snowdesktop::DesktopOrganizer organizer;
+            int undone = organizer.UndoLastOrganize();
+            organizeLastResult_ = {};
+            renderRequested_ = true;
+        }
+    }
 
     ImGui::Spacing();
     ImGui::SeparatorText(_L("app.settings.dock_bar"));

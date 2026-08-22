@@ -832,5 +832,13 @@
   "workshop_manager.create_upload": "Crear un elemento privado y cargarlo",
   "workshop_manager.upload_version": "Subir nueva versión",
   "app.settings.hide_desktop_icons": "Ocultar iconos del escritorio (no recomendado)",
-  "app.settings.mica_enabled": "Efecto cristal esmerilado Mica"
+  "app.settings.mica_enabled": "Efecto cristal esmerilado Mica",
+  "app.settings.desktop_organize": "Organizar escritorio",
+  "app.settings.desktop_organize_desc": "Escanear archivos del escritorio, clasificar por tipo y mover a carpetas. Mueve realmente los archivos.",
+  "app.settings.desktop_organize_preview": "Vista previa de organizacion",
+  "app.settings.organize_preview": "Vista previa de organizacion",
+  "app.settings.desktop_organize_execute": "Iniciar organizacion",
+  "app.settings.desktop_organize_cancel": "Cancelar",
+  "app.settings.desktop_organize_undo": "Deshacer ultima organizacion",
+  "app.settings.organize_result": "Organizacion completada: {0} archivos movidos a {1} carpetas de categoria"
 }

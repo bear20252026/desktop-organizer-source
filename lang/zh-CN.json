@@ -832,5 +832,13 @@
   "workshop_manager.eula_action": "需要在 Steam 页面处理创意工坊协议",
   "calendar.notification_title": "日程提醒",
   "app.settings.hide_desktop_icons": "隐藏桌面图标（不推荐）",
-  "app.settings.mica_enabled": "Mica 毛玻璃材质"
+  "app.settings.mica_enabled": "Mica 毛玻璃材质",
+  "app.settings.desktop_organize": "桌面整理",
+  "app.settings.desktop_organize_desc": "扫描桌面文件，按类型自动分类并移动到对应文件夹。真正移动文件，不是覆盖假界面。",
+  "app.settings.desktop_organize_preview": "预览整理效果",
+  "app.settings.organize_preview": "整理预览",
+  "app.settings.desktop_organize_execute": "开始整理",
+  "app.settings.desktop_organize_cancel": "取消",
+  "app.settings.desktop_organize_undo": "撤销上次整理",
+  "app.settings.organize_result": "整理完成：已移动 {0} 个文件到 {1} 个分类文件夹"
 }

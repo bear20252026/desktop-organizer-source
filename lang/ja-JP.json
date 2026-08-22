@@ -832,5 +832,13 @@
   "workshop_manager.eula_action": "ワークショップ契約には Steam でのアクションが必要です",
   "calendar.notification_title": "スケジュールリマインダー",
   "app.settings.hide_desktop_icons": "デスクトップアイコンを非表示（非推奨）",
-  "app.settings.mica_enabled": "Mica すりガラス素材"
+  "app.settings.mica_enabled": "Mica すりガラス素材",
+  "app.settings.desktop_organize": "デスクトップ整理",
+  "app.settings.desktop_organize_desc": "デスクトップファイルをスキャンし、タイプ別に自動分類してフォルダに移動。実際にファイルを移動します。",
+  "app.settings.desktop_organize_preview": "整理プレビュー",
+  "app.settings.organize_preview": "整理プレビュー",
+  "app.settings.desktop_organize_execute": "整理開始",
+  "app.settings.desktop_organize_cancel": "キャンセル",
+  "app.settings.desktop_organize_undo": "前回の整理を元に戻す",
+  "app.settings.organize_result": "整理完了：{0}個のファイルを{1}個のカテゴリフォルダに移動"
 }

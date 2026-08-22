@@ -832,5 +832,13 @@
   "workshop_manager.eula_action": "Workshop-Vereinbarung erfordert Maßnahmen auf Steam",
   "calendar.notification_title": "Terminerinnerung",
   "app.settings.hide_desktop_icons": "Desktop-Symbole verbergen (nicht empfohlen)",
-  "app.settings.mica_enabled": "Mica matter Glas-Effekt"
+  "app.settings.mica_enabled": "Mica matter Glas-Effekt",
+  "app.settings.desktop_organize": "Desktop organisieren",
+  "app.settings.desktop_organize_desc": "Desktop-Dateien scannen, automatisch nach Typ klassifizieren und in Ordner verschieben.",
+  "app.settings.desktop_organize_preview": "Vorschau der Organisation",
+  "app.settings.organize_preview": "Organisationsvorschau",
+  "app.settings.desktop_organize_execute": "Organisation starten",
+  "app.settings.desktop_organize_cancel": "Abbrechen",
+  "app.settings.desktop_organize_undo": "Letzte Organisation ruckgangig machen",
+  "app.settings.organize_result": "Organisation abgeschlossen: {0} Dateien in {1} Kategorieordner verschoben"
 }

@@ -832,5 +832,13 @@
   "workshop_manager.eula_action": "L'accord d'atelier nécessite une action sur Steam",
   "calendar.notification_title": "Rappel d'horaire",
   "app.settings.hide_desktop_icons": "Masquer les icones du bureau (non recommande)",
-  "app.settings.mica_enabled": "Effet verre depoli Mica"
+  "app.settings.mica_enabled": "Effet verre depoli Mica",
+  "app.settings.desktop_organize": "Organiser le bureau",
+  "app.settings.desktop_organize_desc": "Scanner les fichiers du bureau, classer par type et deplacer dans des dossiers. Deplace reellement les fichiers.",
+  "app.settings.desktop_organize_preview": "Apercu de l'organisation",
+  "app.settings.organize_preview": "Apercu de l'organisation",
+  "app.settings.desktop_organize_execute": "Demarrer l'organisation",
+  "app.settings.desktop_organize_cancel": "Annuler",
+  "app.settings.desktop_organize_undo": "Annuler la derniere organisation",
+  "app.settings.organize_result": "Organisation terminee : {0} fichiers deplaces dans {1} dossiers de categorie"
 }

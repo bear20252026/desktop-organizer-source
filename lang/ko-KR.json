@@ -832,5 +832,13 @@
   "workshop_manager.eula_action": "창작마당 계약에 Steam에서 조치가 필요합니다",
   "calendar.notification_title": "일정 알림",
   "app.settings.hide_desktop_icons": "바탕화면 아이콘 숨기기 (권장하지 않음)",
-  "app.settings.mica_enabled": "Mica 프로스트 글래스"
+  "app.settings.mica_enabled": "Mica 프로스트 글래스",
+  "app.settings.desktop_organize": "데스크톱 정리",
+  "app.settings.desktop_organize_desc": "데스크톱 파일을 스캔하고 유형별로 자동 분류하여 폴더로 이동. 실제로 파일을 이동합니다.",
+  "app.settings.desktop_organize_preview": "정리 미리보기",
+  "app.settings.organize_preview": "정리 미리보기",
+  "app.settings.desktop_organize_execute": "정리 시작",
+  "app.settings.desktop_organize_cancel": "취소",
+  "app.settings.desktop_organize_undo": "이전 정리 실행 취소",
+  "app.settings.organize_result": "정리 완료: {0}개 파일을 {1}개 카테고리 폴더로 이동"
 }

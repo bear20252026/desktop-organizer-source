@@ -832,5 +832,13 @@
   "workshop_manager.eula_action": "O contrato do Workshop requer uma ação no Steam",
   "calendar.notification_title": "Lembrete de agendamento",
   "app.settings.hide_desktop_icons": "Ocultar icones da area de trabalho (nao recomendado)",
-  "app.settings.mica_enabled": "Efeito vidro fosco Mica"
+  "app.settings.mica_enabled": "Efeito vidro fosco Mica",
+  "app.settings.desktop_organize": "Organizar area de trabalho",
+  "app.settings.desktop_organize_desc": "Escanear arquivos, classificar por tipo e mover para pastas. Move realmente os arquivos.",
+  "app.settings.desktop_organize_preview": "Pre-visualizar organizacao",
+  "app.settings.organize_preview": "Pre-visualizacao da organizacao",
+  "app.settings.desktop_organize_execute": "Iniciar organizacao",
+  "app.settings.desktop_organize_cancel": "Cancelar",
+  "app.settings.desktop_organize_undo": "Desfazer ultima organizacao",
+  "app.settings.organize_result": "Organizacao concluida: {0} arquivos movidos para {1} pastas de categoria"
 }

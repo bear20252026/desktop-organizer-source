@@ -832,5 +832,13 @@
   "workshop_manager.eula_action": "Workshop agreement requires action on Steam",
   "calendar.notification_title": "Schedule Reminder",
   "app.settings.hide_desktop_icons": "Hide desktop icons (not recommended)",
-  "app.settings.mica_enabled": "Mica frosted glass material"
+  "app.settings.mica_enabled": "Mica frosted glass material",
+  "app.settings.desktop_organize": "Desktop Organize",
+  "app.settings.desktop_organize_desc": "Scan desktop files, auto-classify by type and move to category folders. Actually moves files, not a fake overlay.",
+  "app.settings.desktop_organize_preview": "Preview Organization",
+  "app.settings.organize_preview": "Organization Preview",
+  "app.settings.desktop_organize_execute": "Start Organizing",
+  "app.settings.desktop_organize_cancel": "Cancel",
+  "app.settings.desktop_organize_undo": "Undo Last Organization",
+  "app.settings.organize_result": "Organization complete: moved {0} files to {1} category folders"
 }
