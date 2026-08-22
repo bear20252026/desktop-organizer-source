@@ -267,6 +267,31 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* info)
 {
     CrashHandler(info); // write stack trace to log
 
+    // 崩溃恢复：在进程退出前恢复桌面图标显示
+    // 直接用 Windows API，不依赖 DesktopApp 实例（程序可能处于异常状态）
+    {
+        HWND progman = FindWindowW(L"Progman", nullptr);
+        if (progman)
+        {
+            HWND shellView = FindWindowExW(progman, nullptr,
+                L"SHELLDLL_DefView", nullptr);
+            if (shellView)
+                ShowWindow(shellView, SW_SHOW);
+        }
+        // 隐藏所有 WorkerW 覆盖窗口
+        HWND workerW = nullptr;
+        while ((workerW = FindWindowExW(nullptr, workerW, L"WorkerW", nullptr)))
+        {
+            HWND sv = FindWindowExW(workerW, nullptr, L"SHELLDLL_DefView", nullptr);
+            if (!sv && IsWindowVisible(workerW))
+                ShowWindow(workerW, SW_HIDE);
+        }
+        // 重启 Explorer 以刷新桌面
+        HWND listView = FindWindowExW(progman, nullptr, L"SysListView32", nullptr);
+        if (listView)
+            ShowWindow(listView, SW_SHOW);
+    }
+
     if (!ShouldPreventAutoRestart())
     {
         wchar_t selfPath[MAX_PATH]{};

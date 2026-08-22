@@ -115,6 +115,9 @@ struct PersonalizationSettings
      */
     bool micaEnabled = false;
 
+    // 安全开关：是否隐藏桌面图标（默认不隐藏，避免程序崩溃时桌面"消失"）
+    bool hideDesktopIcons = false;
+
     /**
      * @brief 文字颜色主题 (0=浅色/白字, 1=深色/黑字)
      * @details 影响任务栏文字图标、Dock组件标题和右下角图标、Lua组件文字颜色。

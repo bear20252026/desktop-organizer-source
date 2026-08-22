@@ -64,9 +64,21 @@ DesktopApp::~DesktopApp()
  * 通过 ShowWindow(SW_HIDE) 隐藏桌面的 ListView 窗口（即图标层），
  * 并用窗口属性 kHiddenBySnowDesktopProp 标记此操作为 SnowDesktop 所为，
  * 以便后续恢复时判断。
+ *
+ * 安全开关：只有当用户在设置中明确选择"隐藏桌面图标"时才隐藏。
+ * 默认行为：不隐藏桌面图标，让覆盖层和桌面图标共存。
+ * 这避免了程序崩溃/被杀时桌面图标"消失"的安全风险。
  */
 void DesktopApp::HideExplorerIcons()
 {
+    // 安全开关：默认不隐藏桌面图标
+    // 只有用户在设置中明确选择隐藏时才执行
+    PersonalizationSettings p = settingsWindow_
+        ? settingsWindow_->GetPersonalization()
+        : PersonalizationSettings::DarkPreset();
+    if (!p.hideDesktopIcons)
+        return;
+
     if (!desktopWindows_.listView || !IsWindow(desktopWindows_.listView))
         return;
 
