@@ -143,10 +143,39 @@ void DesktopApp::PaintMenuBarWindow(HWND hwnd)
         (h - timeSize.cy) / 2,
         timeBuf, static_cast<int>(wcslen(timeBuf)));
 
-    // 左侧：应用名占位
-    const wchar_t* appName = L"Desktop";
-    TextOutW(memDc, 12, (h - timeSize.cy) / 2,
-        appName, static_cast<int>(wcslen(appName)));
+    // 左侧：聚焦应用名（macOS 风格 — 实时显示前台窗口所属应用）
+    {
+        HWND fgHwnd = GetForegroundWindow();
+        wchar_t appName[64] = L"Desktop";
+        if (fgHwnd)
+        {
+            DWORD pid = 0;
+            GetWindowThreadProcessId(fgHwnd, &pid);
+            if (pid)
+            {
+                HANDLE hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
+                if (hProc)
+                {
+                    wchar_t procPath[MAX_PATH]{};
+                    DWORD pathLen = MAX_PATH;
+                    if (QueryFullProcessImageNameW(hProc, 0, procPath, &pathLen))
+                    {
+                        // 提取文件名（不含扩展名）
+                        wchar_t* slash = wcsrchr(procPath, L'\\');
+                        wchar_t* baseName = slash ? slash + 1 : procPath;
+                        wchar_t* dot = wcsrchr(baseName, L'.');
+                        if (dot) *dot = L'\0';
+                        // 截断到合理长度
+                        wcsncpy(appName, baseName, 31);
+                        appName[31] = L'\0';
+                    }
+                    CloseHandle(hProc);
+                }
+            }
+        }
+        TextOutW(memDc, 12, (h - timeSize.cy) / 2,
+            appName, static_cast<int>(wcslen(appName)));
+    }
 
     // 右侧：电池（充电状态）+ WiFi + 音量
     int rightX = w - 12;
